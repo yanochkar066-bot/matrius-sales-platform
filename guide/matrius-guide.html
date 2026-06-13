@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Дневник скорочтения — MATRIUS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Onest', sans-serif;
+  background: #C8CDD6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 28px;
+}
+
+/* ──────────── A4 PAGE ──────────── */
+.page {
+  width: 794px;
+  height: 1123px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════
+   COVER
+═══════════════════════════════════ */
+.page-cover {
+  background-color: #1C3152;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 30px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 140px 52px 0;
+}
+
+.cover-deco-num {
+  position: absolute;
+  right: -40px; bottom: -60px;
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 580px;
+  line-height: 1;
+  color: rgba(255,255,255,0.03);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cover-logo-wrap {
+  position: absolute;
+  top: 48px; left: 52px;
+  z-index: 5;
+}
+.cover-logo-img {
+  width: 72px; height: 72px;
+  object-fit: contain;
+  border-radius: 50%;
+  display: block;
+}
+
+.cover-top-age {
+  position: absolute;
+  top: 50px; right: 52px;
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 52px;
+  color: #EE6435;
+  line-height: 1;
+  z-index: 5;
+}
+
+.cover-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.cover-kicker { display: none; }
+
+.cover-h1 {
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  color: #FFFFFF;
+  text-align: center;
+}
+.cover-h1 .line-white { display: block; font-size: 120px; }
+.cover-h1 .line-orange {
+  display: block; font-size: 72px;
+  color: #EE6435; margin-top: 10px;
+  letter-spacing: -0.02em;
+}
+
+.cover-rule {
+  width: 80px; height: 3px;
+  background: #EE6435; border-radius: 2px;
+  margin: 28px auto 24px;
+}
+
+.cover-sub {
+  font-family: 'Caveat', cursive;
+  font-size: 28px; font-style: italic;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.3; text-align: center;
+  margin-bottom: 0;
+}
+
+.cover-photo-wrap {
+  width: 100%; margin-top: 32px;
+  border-radius: 20px; overflow: hidden;
+  flex-shrink: 0; height: 340px;
+}
+.cover-photo {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+}
+
+.cover-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 56px;
+  background: rgba(238,100,53,0.12);
+  border-top: 1px solid rgba(238,100,53,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px; z-index: 5;
+}
+.cover-footer-text {
+  font-family: 'Onest', sans-serif;
+  font-size: 12px; font-weight: 500;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+.cover-footer-dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(238,100,53,0.5);
+}
+
+/* ═══════════════════════════════════
+   INNER PAGE BASE
+═══════════════════════════════════ */
+.page-inner {
+  background: #F7F8FA;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+/* Шапка */
+.p-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 44px 16px;
+  background: #fff;
+}
+.p-header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.p-header-logo img {
+  width: 40px; height: 40px;
+  object-fit: contain;
+}
+.p-header-logo-name {
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1C3152;
+  letter-spacing: 2.5px;
+}
+.p-header-age {
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  color: #EE6435;
+  line-height: 1;
+}
+
+/* Тонкая линия под шапкой */
+.p-divider {
+  height: 1px;
+  background: #E2E6EE;
+  margin: 0 44px;
+}
+
+/* Зона контента */
+.p-content {
+  flex: 1;
+  padding: 24px 44px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* Бейдж дня */
+.day-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1C3152;
+  color: #fff;
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 7px 20px;
+  border-radius: 40px;
+  width: fit-content;
+  margin-bottom: 20px;
+}
+.day-tag .dot {
+  width: 6px; height: 6px;
+  background: #EE6435;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Заголовок секции */
+.sec-title {
+  font-family: 'Onest', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #1C3152;
+  line-height: 1.35;
+  margin-bottom: 2px;
+}
+.sec-caveat {
+  font-family: 'Caveat', cursive;
+  font-size: 26px;
+  color: #EE6435;
+  font-style: italic;
+  line-height: 1.2;
+  display: block;
+  margin-bottom: 16px;
+}
+
+/* ──────────── КАРТОЧКИ ──────────── */
+
+/* Синяя карточка — основная */
+.card {
+  background: #3D6494;
+  border-radius: 18px;
+  padding: 0;
+  color: #fff;
+  margin-bottom: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Верхняя полоска-акцент внутри карточки */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.2);
+}
+
+.card-inner {
+  padding: 18px 22px 20px;
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+/* Оранжевый нумерованный кружок */
+.card-num {
+  width: 34px; height: 34px;
+  min-width: 34px;
+  background: #EE6435;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Иконка-эмодзи вместо номера */
+.card-icon {
+  width: 34px; height: 34px;
+  min-width: 34px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.3;
+  color: #fff;
+  padding-top: 6px;
+}
+
+.card-body {
+  font-family: 'Onest', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.82);
+  padding-left: 48px; /* отступ под бейдж */
+}
+
+.card-body.no-indent { padding-left: 0; }
+
+/* Разделитель внутри карточки */
+.card-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 0 22px;
+}
+
+/* Светлая карточка (нейтральная) */
+.card-light {
+  background: #fff;
+  border-radius: 18px;
+  border: 1.5px solid #E2E6EE;
+  padding: 18px 22px 20px;
+  margin-bottom: 10px;
+}
+
+.card-light-title {
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #1C3152;
+  margin-bottom: 7px;
+}
+
+.card-light-body {
+  font-family: 'Onest', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #4A5568;
+}
+
+/* Оранжевая подсказка */
+.card-tip {
+  background: #FFF5F1;
+  border-left: 3px solid #EE6435;
+  border-radius: 0 12px 12px 0;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+}
+
+.card-tip-title {
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: #EE6435;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card-tip-body {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #4A5568;
+}
+
+/* Строка для записи */
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  background: rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+}
+
+.input-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.35);
+}
+
+/* Двухколоночная сетка */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Разделитель секций */
+.sec-gap { height: 18px; }
+.sec-gap-sm { height: 10px; }
+
+/* Номер страницы */
+.pg {
+  position: absolute;
+  bottom: 22px; right: 40px;
+  font-family: 'Onest', sans-serif;
+  font-size: 12px;
+  color: #B0BDCC;
+  font-weight: 500;
+}
+
+/* Highlight-маркер */
+.hl {
+  background: #EE6435;
+  color: #fff;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+@media print {
+  body { background: white; padding: 0; gap: 0; }
+  .page { page-break-after: always; page-break-inside: avoid; margin: 0; }
+}
+@page { size: A4; margin: 0; }
+</style>
+</head>
+<body>
+
+<!-- ██████████ PAGE 1: COVER ██████████ -->
+<div class="page page-cover">
+  <div class="cover-deco-num">5</div>
+  <div class="cover-logo-wrap">
+    <img src="../assets/logo-circle.png" class="cover-logo-img" alt="MATRIUS">
+  </div>
+  <div class="cover-top-age">5+</div>
+  <div class="cover-center">
+    <h1 class="cover-h1">
+      <span class="line-white">Дневник</span>
+      <span class="line-orange">скорочтения</span>
+    </h1>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">Увеличиваем скорость чтения<br>за 5 дней вместе с дракошей Жорой</p>
+    <div class="cover-photo-wrap">
+      <img src="../assets/cover-photo.png" class="cover-photo" alt="">
+    </div>
+  </div>
+  <div class="cover-footer">
+    <span class="cover-footer-text">Matrius</span>
+    <div class="cover-footer-dot"></div>
+    <span class="cover-footer-text">matrius.online</span>
+    <div class="cover-footer-dot"></div>
+    <span class="cover-footer-text">Образовательные материалы</span>
+  </div>
+</div>
+
+
+<!-- ██████████ PAGE 2: ВВЕДЕНИЕ ██████████ -->
+<div class="page page-inner">
+  <div class="p-header">
+    <div class="p-header-logo">
+      <img src="../assets/logo-circle.png" alt="">
+      <span class="p-header-logo-name">MATRIUS</span>
+    </div>
+    <div class="p-header-age">5+</div>
+  </div>
+  <div class="p-divider"></div>
+
+  <div class="p-content">
+
+    <!-- Вводный блок -->
+    <div class="card-light" style="margin-bottom:18px;">
+      <div class="card-light-title">Привет, Дружок!</div>
+      <div class="card-light-body">
+        В руках ты держишь <strong style="color:#1C3152;">"Дневник скорочтения"</strong>. В нём собраны интересные задания, чтобы прокачать твою скорость чтения. Всего 5 дней простых упражнений — и ты заметишь, что читаешь быстрее!
+      </div>
+    </div>
+
+    <!-- Заголовок секции -->
+    <div class="sec-title">Меня зовут дракоша Жора —</div>
+    <span class="sec-caveat">и я хочу провести вместе с тобой эксперимент!</span>
+
+    <!-- Шаги эксперимента -->
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-num">1</div>
+          <div class="card-title">Возьми книгу, которую ещё не читал</div>
+        </div>
+        <div class="card-body">Поставь таймер на 1 минуту и начни читать вслух — быстро, но разборчиво.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-num">2</div>
+          <div class="card-title">Посчитай количество слов</div>
+        </div>
+        <div class="card-body">Когда время истечёт, поставь палочку карандашом — и посчитай вместе с родителями, сколько слов в минуту прочитал.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-num">3</div>
+          <div class="card-title">Запиши стартовый результат</div>
+        </div>
+      </div>
+      <div class="input-row">
+        <span>Я прочитал(а)</span>
+        <div class="input-line"></div>
+        <span>слов в минуту</span>
+      </div>
+    </div>
+
+    <div class="sec-gap-sm"></div>
+
+    <!-- Подсказка -->
+    <div class="card-tip">
+      <div class="card-tip-title">💡 Запомни</div>
+      <div class="card-tip-body">В конце 5-го дня мы снова пройдём этот тест — и сравним результат. Обещаю, будет весело!</div>
+    </div>
+
+  </div>
+  <div class="pg">1</div>
+</div>
+
+
+<!-- ██████████ PAGE 3: ДЕНЬ 1, ЧАСТЬ 1 ██████████ -->
+<div class="page page-inner">
+  <div class="p-header">
+    <div class="p-header-logo">
+      <img src="../assets/logo-circle.png" alt="">
+      <span class="p-header-logo-name">MATRIUS</span>
+    </div>
+    <div class="p-header-age">5+</div>
+  </div>
+  <div class="p-divider"></div>
+
+  <div class="p-content">
+
+    <div class="day-tag"><div class="dot"></div>День 1</div>
+
+    <!-- Гимнастика для мозга -->
+    <div class="sec-title">Гимнастика для мозга</div>
+    <span class="sec-caveat">разогреваемся перед тренировкой!</span>
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon">🤚</div>
+          <div class="card-title">Упражнение «Кольцо»</div>
+        </div>
+        <div class="card-body">
+          Поочерёдно, не спеша, соединяй большой палец с каждым остальным — от указательного до мизинца и обратно. Сначала одной рукой, потом двумя одновременно в прямом и обратном направлении.
+        </div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-inner" style="padding-top:12px; padding-bottom:14px;">
+        <div style="font-size:12px; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">Повторений</div>
+        <div style="font-size:15px; font-weight:700;">3–5 раз каждой рукой</div>
+      </div>
+    </div>
+
+    <div class="sec-gap"></div>
+
+    <!-- Ребусы -->
+    <div class="sec-title">Ребусы</div>
+    <span class="sec-caveat">угадай слово по картинке и буквам!</span>
+
+    <div class="card-light">
+      <div class="card-light-title">Как разгадывать</div>
+      <div class="card-light-body">
+        В ребусе слово зашифровано картинками и буквами. Например: нота <strong>«Ля»</strong> + <strong>«пА»</strong> = <span class="hl">ЛАПА</span>. Слушай звучание, а не написание!
+      </div>
+    </div>
+
+    <div class="card-tip">
+      <div class="card-tip-title">⚡ Важно</div>
+      <div class="card-tip-body">Если не получается — попроси кого-то вместе посмотреть. Разгадывать ребусы вслух гораздо веселее!</div>
+    </div>
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon">🔤</div>
+          <div class="card-title">Зашифрованные слова</div>
+        </div>
+        <div class="card-body">В дневнике ты найдёшь картинки-подсказки. Разгадай как можно больше!</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="pg">2</div>
+</div>
+
+
+<!-- ██████████ PAGE 4: ДЕНЬ 1, ЧАСТЬ 2 ██████████ -->
+<div class="page page-inner">
+  <div class="p-header">
+    <div class="p-header-logo">
+      <img src="../assets/logo-circle.png" alt="">
+      <span class="p-header-logo-name">MATRIUS</span>
+    </div>
+    <div class="p-header-age">5+</div>
+  </div>
+  <div class="p-divider"></div>
+
+  <div class="p-content">
+
+    <div class="day-tag"><div class="dot"></div>День 1 — продолжение</div>
+
+    <!-- Скороговорки -->
+    <div class="sec-title">Скороговорки</div>
+    <span class="sec-caveat">тренируем дикцию и скорость!</span>
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon">🗣️</div>
+          <div class="card-title">Как выполнять</div>
+        </div>
+        <div class="card-body">
+          Прочитай скороговорку медленно 3 раза. Убедись, что произносишь правильно. Затем читай всё быстрее — до максимальной скорости без ошибок.
+        </div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-inner" style="padding-top:12px; padding-bottom:14px;">
+        <div style="font-size:12px; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">Норматив</div>
+        <div style="font-size:15px; font-weight:700;">Медленно → быстро → очень быстро</div>
+      </div>
+    </div>
+
+    <div class="sec-gap"></div>
+
+    <!-- Книга -->
+    <div class="sec-title">Упражнение «Книга»</div>
+    <span class="sec-caveat">самое вкусное — напоследок!</span>
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-header">
+          <div class="card-icon">📖</div>
+          <div class="card-title">Чтение с пальцем-указателем</div>
+        </div>
+        <div class="card-body">
+          Возьми свою любимую книгу. Читай, используя палец как закладку — веди им под строчкой. Это помогает глазам двигаться быстрее и не теряться.
+        </div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-inner" style="padding-top:12px; padding-bottom:14px;">
+        <div style="font-size:12px; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;">Время</div>
+        <div style="font-size:15px; font-weight:700;">5–8 минут</div>
+      </div>
+    </div>
+
+    <div class="sec-gap"></div>
+
+    <div class="grid-2">
+      <div class="card-light">
+        <div class="card-light-title">✅ Всё выполнил?</div>
+        <div class="card-light-body">Молодец! Первый день позади. Завтра ждёт новая порция упражнений.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-light-title">📝 Отметь себя</div>
+        <div class="card-light-body">Обведи звёздочку, когда завершишь все задания дня: ★★★★★</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="pg">3</div>
+</div>
+
+</body>
+</html>

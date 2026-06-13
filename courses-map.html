@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карта курсов — MATRIUS</title>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #1C3152; --blue: #2D5187; --orange: #EE6435;
+  --bg: #F0F2F5; --white: #fff; --text: #1A2B42;
+  --muted: #6B7A8D; --border: #E2E6EE;
+}
+html { width: 100%; height: 100%; }
+body { font-family: 'Onest', sans-serif; background: var(--bg); color: var(--text); width: 100%; min-width: 320px; }
+
+/* ── HEADER ── */
+.header {
+  background: var(--navy);
+  padding: 20px 40px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  width: 100%;
+}
+.hd-left { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.hd-logo {
+  width: 44px; height: 44px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+}
+.hd-title { font-size: 18px; font-weight: 700; color: #fff; }
+.hd-title span { color: var(--orange); }
+.hd-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+.hd-center { flex: 1; max-width: 380px; position: relative; }
+.search-input {
+  width: 100%; background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px; padding: 10px 16px 10px 40px;
+  font-family: 'Onest', sans-serif; font-size: 13.5px;
+  color: #fff; outline: none; transition: background 0.2s, border-color 0.2s;
+}
+.search-input::placeholder { color: rgba(255,255,255,0.35); }
+.search-input:focus { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+.search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+.hd-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.hd-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 16px; border-radius: 10px; border: none;
+  font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.btn-quiz { background: var(--orange); color: #fff; }
+.btn-quiz:hover { background: #d4572d; }
+.btn-fav { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+.btn-fav:hover, .btn-fav.active { background: rgba(238,100,53,0.2); border-color: var(--orange); color: var(--orange); }
+.hd-stats { display: flex; gap: 20px; }
+.stat-val { font-size: 18px; font-weight: 700; color: #fff; line-height: 1; }
+.stat-label { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 500; margin-top: 1px; }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  background: #fff; border-bottom: 1px solid var(--border);
+  padding: 12px 40px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  width: 100%;
+}
+.filter-group { display: flex; align-items: center; gap: 6px; }
+.filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-right: 2px; }
+.filter-btn {
+  padding: 6px 13px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: transparent; font-family: 'Onest', sans-serif;
+  font-size: 12.5px; font-weight: 500; color: var(--muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.filter-btn:hover { border-color: var(--navy); color: var(--navy); }
+.filter-btn.active { background: var(--navy); border-color: var(--navy); color: #fff; font-weight: 600; }
+.toolbar-right { margin-left: auto; font-size: 12.5px; color: var(--muted); }
+.count-badge { font-weight: 700; color: var(--navy); }
+
+/* ── MAIN ── */
+.main { display: flex; min-height: calc(100vh - 170px); width: 100%; }
+
+/* ── GRID ── */
+.grid-area { flex: 1; padding: 28px 40px 100px; min-width: 0; width: 100%; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 100%; }
+.no-results {
+  grid-column: 1/-1; text-align: center; padding: 60px 20px;
+  color: var(--muted);
+}
+.no-results-icon { font-size: 48px; display: block; margin-bottom: 14px; opacity: 0.4; }
+
+/* ── CARD ── */
+.card {
+  background: #fff; border-radius: 16px;
+  border: 2px solid transparent; padding: 18px 16px 14px;
+  cursor: pointer; transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.card::after {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 4px;
+  border-radius: 14px 14px 0 0;
+  transition: height 0.15s;
+}
+.card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(28,49,82,0.1); }
+.card:hover::after { height: 5px; }
+.card.active { border-color: var(--orange); box-shadow: 0 6px 20px rgba(238,100,53,0.2); }
+.card.active::after { height: 5px; background: var(--orange) !important; }
+.card.hidden { display: none; }
+
+.card-top-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.card-icon { font-size: 32px; line-height: 1; }
+.card-actions { display: flex; align-items: center; gap: 6px; }
+.card-fav-btn, .card-compare-btn {
+  width: 28px; height: 28px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; cursor: pointer; color: var(--muted);
+  transition: all 0.15s;
+}
+.card-fav-btn:hover { border-color: #e05ab0; color: #e05ab0; }
+.card-fav-btn.active { border-color: #e05ab0; background: #fdf0f8; color: #e05ab0; }
+.card-compare-btn:hover { border-color: var(--blue); color: var(--blue); }
+.card-compare-btn.active { border-color: var(--blue); background: rgba(45,81,135,0.08); color: var(--blue); }
+
+.card-badge {
+  font-size: 10px; font-weight: 700; padding: 3px 8px;
+  border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+  align-self: center; white-space: nowrap;
+}
+.card-name { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 5px; }
+.card-tagline { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; flex: 1; }
+
+.popularity-row { margin-bottom: 10px; }
+.popularity-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.popularity-text { font-size: 10px; color: var(--muted); font-weight: 500; }
+.popularity-num { font-size: 10px; color: var(--navy); font-weight: 700; }
+.popularity-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.popularity-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+
+.card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.card-age {
+  background: rgba(28,49,82,0.07); color: var(--navy);
+  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+}
+.card-arrow {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--muted); transition: all 0.15s;
+}
+.card:hover .card-arrow, .card.active .card-arrow {
+  background: var(--orange); border-color: var(--orange); color: #fff;
+}
+
+/* ── PANEL ── */
+.panel {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 150; pointer-events: none;
+  opacity: 0; transition: opacity 0.25s;
+}
+.panel.open { pointer-events: all; opacity: 1; }
+.panel-inner {
+  width: 560px; max-width: 92vw; max-height: 86vh;
+  background: #fff; border-radius: 16px;
+  overflow-y: auto; padding: 28px 24px 40px;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(28,49,82,0.22);
+  transform: scale(0.97) translateY(10px);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  opacity: 0;
+}
+.panel.open .panel-inner { transform: scale(1) translateY(0); opacity: 1; }
+.panel-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--bg); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--muted); transition: background 0.15s;
+}
+.panel-close:hover { background: var(--border); }
+
+.panel-icon { font-size: 44px; display: block; margin-bottom: 10px; }
+.panel-age-badge {
+  display: inline-flex; background: rgba(238,100,53,0.1);
+  color: var(--orange); font-size: 11.5px; font-weight: 600;
+  padding: 4px 11px; border-radius: 20px; margin-bottom: 10px;
+}
+.panel-name { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 4px; }
+.panel-tagline { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+.panel-divider { height: 1px; background: var(--border); margin: 16px 0; }
+.panel-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px; }
+.panel-desc { font-size: 13px; line-height: 1.7; color: #4A5568; margin-bottom: 16px; }
+
+.results-list { list-style: none; margin-bottom: 16px; }
+.results-list li { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; line-height: 1.6; color: var(--text); padding: 7px 0; border-bottom: 1px solid #F4F6F8; }
+.results-list li:last-child { border-bottom: none; }
+.result-check { width: 18px; height: 18px; min-width: 18px; background: rgba(238,100,53,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--orange); margin-top: 2px; }
+
+.for-block { background: var(--bg); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; font-size: 13px; line-height: 1.65; color: #4A5568; }
+.formats-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 16px; }
+.format-pill { background: rgba(45,81,135,0.08); color: var(--blue); font-size: 11.5px; font-weight: 600; padding: 5px 11px; border-radius: 20px; }
+.price-block { background: var(--navy); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.price-label { font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 500; }
+.price-val { font-size: 18px; font-weight: 700; color: #fff; margin-top: 2px; }
+.price-time { font-size: 11px; color: rgba(255,255,255,0.5); }
+.price-badge { background: var(--orange); border-radius: 9px; padding: 7px 11px; text-align: center; }
+.price-badge span { display: block; font-size: 10px; color: rgba(255,255,255,0.7); }
+.price-badge strong { display: block; font-size: 12px; color: #fff; font-weight: 700; }
+
+/* Objections */
+.obj-list { margin-bottom: 16px; }
+.obj-item { background: var(--bg); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+.obj-q {
+  padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--text);
+  cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.15s;
+}
+.obj-q:hover { background: #e8eaf0; }
+.obj-q-icon { font-size: 12px; color: var(--muted); transition: transform 0.2s; }
+.obj-q.open .obj-q-icon { transform: rotate(90deg); }
+.obj-a { display: none; padding: 0 14px 12px; font-size: 12.5px; color: #4A5568; line-height: 1.65; }
+.obj-a.visible { display: block; }
+.obj-copy {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 8px; padding: 5px 10px; border-radius: 7px;
+  background: rgba(45,81,135,0.08); border: none;
+  font-family: 'Onest', sans-serif; font-size: 11.5px; font-weight: 600;
+  color: var(--blue); cursor: pointer; transition: all 0.15s;
+}
+.obj-copy:hover { background: rgba(45,81,135,0.15); }
+.obj-copy.copied { background: rgba(34,197,94,0.1); color: #16a34a; }
+
+.cta-btn {
+  width: 100%; background: var(--orange); color: #fff;
+  border: none; cursor: pointer; padding: 13px 20px;
+  border-radius: 11px; font-size: 14px; font-weight: 700;
+  font-family: 'Onest', sans-serif; transition: all 0.15s;
+}
+.cta-btn:hover { background: #d4572d; transform: translateY(-1px); }
+
+/* ── COMPARE BAR ── */
+.compare-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: var(--navy); border-top: 2px solid var(--orange);
+  padding: 14px 40px; display: flex; align-items: center; gap: 20px;
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.compare-bar.show { transform: translateY(0); }
+.compare-bar-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); white-space: nowrap; }
+.compare-items { display: flex; gap: 10px; flex: 1; }
+.compare-item {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.1); border-radius: 9px; padding: 7px 12px;
+  font-size: 13px; color: #fff; font-weight: 500;
+}
+.compare-item-remove {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: rgba(255,255,255,0.7); transition: background 0.15s;
+}
+.compare-item-remove:hover { background: rgba(238,100,53,0.4); color: #fff; }
+.compare-placeholder {
+  width: 120px; height: 36px; border-radius: 9px;
+  border: 2px dashed rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: rgba(255,255,255,0.3);
+}
+.compare-bar-actions { display: flex; gap: 10px; }
+.btn-do-compare {
+  padding: 9px 20px; border-radius: 10px; border: none;
+  background: var(--orange); color: #fff;
+  font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-do-compare:hover { background: #d4572d; }
+.btn-do-compare:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-clear-compare {
+  padding: 9px 14px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2); background: transparent;
+  color: rgba(255,255,255,0.6); font-family: 'Onest', sans-serif;
+  font-size: 13px; cursor: pointer; transition: all 0.15s;
+}
+.btn-clear-compare:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+
+/* ── MODALS ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(10,20,40,0.65); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: #fff; border-radius: 20px; padding: 36px;
+  width: 90%; max-height: 85vh; overflow-y: auto;
+  transform: scale(0.95) translateY(10px); transition: transform 0.25s;
+}
+.modal-overlay.show .modal-box { transform: scale(1) translateY(0); }
+.modal-close {
+  float: right; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--bg); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--muted);
+}
+.modal-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; letter-spacing: -0.02em; }
+.modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+/* Compare table */
+.compare-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.compare-table th {
+  background: var(--navy); color: #fff; padding: 12px 16px;
+  font-size: 13px; font-weight: 700; text-align: left; border-radius: 0;
+}
+.compare-table th:first-child { border-radius: 10px 0 0 0; width: 140px; }
+.compare-table th:last-child { border-radius: 0 10px 0 0; }
+.compare-table td { padding: 11px 16px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:nth-child(even) td { background: var(--bg); }
+.compare-table td:first-child { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+.compare-table .icon-cell { font-size: 22px; }
+
+/* Quiz */
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 24px; }
+.quiz-step-dot {
+  flex: 1; height: 4px; border-radius: 4px;
+  background: var(--border); transition: background 0.3s;
+}
+.quiz-step-dot.done { background: var(--orange); }
+.quiz-q-num { font-size: 12px; font-weight: 600; color: var(--orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.quiz-q-text { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 20px; letter-spacing: -0.02em; line-height: 1.3; }
+.quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+.quiz-opt {
+  padding: 14px 16px; border-radius: 12px; border: 2px solid var(--border);
+  background: transparent; cursor: pointer; text-align: left;
+  font-family: 'Onest', sans-serif; font-size: 13.5px; font-weight: 500;
+  color: var(--text); transition: all 0.15s; line-height: 1.4;
+}
+.quiz-opt:hover { border-color: var(--navy); background: rgba(28,49,82,0.04); }
+.quiz-opt.selected { border-color: var(--orange); background: rgba(238,100,53,0.06); color: var(--orange); font-weight: 700; }
+.quiz-opt-emoji { display: block; font-size: 24px; margin-bottom: 6px; }
+.quiz-result { text-align: center; }
+.quiz-result-icon { font-size: 56px; display: block; margin-bottom: 16px; }
+.quiz-result-title { font-size: 16px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.quiz-result-name { font-size: 24px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; margin-bottom: 8px; }
+.quiz-result-desc { font-size: 13.5px; color: #4A5568; line-height: 1.65; margin-bottom: 24px; }
+.quiz-result-cards { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+.quiz-result-card {
+  background: var(--bg); border-radius: 12px; padding: 14px 18px;
+  text-align: left; cursor: pointer; border: 2px solid transparent;
+  transition: all 0.15s; min-width: 160px;
+}
+.quiz-result-card:hover { border-color: var(--orange); background: rgba(238,100,53,0.04); }
+.quiz-result-card-icon { font-size: 28px; display: block; margin-bottom: 8px; }
+.quiz-result-card-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.quiz-result-card-age { font-size: 11px; color: var(--muted); }
+.quiz-nav { display: flex; justify-content: space-between; align-items: center; }
+.quiz-back {
+  padding: 10px 18px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: transparent; font-family: 'Onest', sans-serif;
+  font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.15s;
+}
+.quiz-back:hover { border-color: var(--navy); color: var(--navy); }
+.quiz-next {
+  padding: 10px 24px; border-radius: 10px; border: none;
+  background: var(--navy); color: #fff;
+  font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+}
+.quiz-next:hover { background: var(--blue); }
+.quiz-next:disabled { opacity: 0.3; cursor: not-allowed; }
+.quiz-restart {
+  padding: 10px 20px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: transparent; font-family: 'Onest', sans-serif;
+  font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer;
+}
+.quiz-open-btn {
+  padding: 10px 20px; border-radius: 10px; border: none;
+  background: var(--orange); color: #fff;
+  font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+
+/* Scrollbar */
+.panel-inner::-webkit-scrollbar, .modal-box::-webkit-scrollbar { width: 4px; }
+.panel-inner::-webkit-scrollbar-thumb, .modal-box::-webkit-scrollbar-thumb { background: #dde1e8; border-radius: 4px; }
+
+/* ── PRICE CARD GENERATOR ── */
+#priceCardModal .modal-box { max-width: 1420px; padding: 28px 32px; }
+.pc-layout { display: flex; gap: 24px; align-items: flex-start; margin-top: 4px; }
+
+.pc-form { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0; }
+.pf-section { background: var(--bg); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+.pf-row { display: flex; align-items: center; gap: 10px; }
+.pf-label { font-size: 11.5px; font-weight: 600; color: var(--muted); width: 80px; flex-shrink: 0; }
+.pf-input {
+  flex: 1; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'Onest', sans-serif; font-size: 13px; color: var(--text);
+  background: #fff; outline: none; transition: border-color 0.15s;
+}
+.pf-input:focus { border-color: var(--navy); }
+.pf-color-input { width: 44px; height: 32px; padding: 2px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; background: #fff; }
+
+.pf-card-block { background: var(--bg); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; }
+.pf-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.pf-card-num { font-size: 11px; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 1px; }
+.pf-toggle { display: flex; gap: 4px; }
+.pf-toggle-btn {
+  padding: 4px 10px; border-radius: 6px; border: 1.5px solid var(--border);
+  background: transparent; font-family: 'Onest', sans-serif; font-size: 11px; font-weight: 600;
+  color: var(--muted); cursor: pointer; transition: all 0.15s;
+}
+.pf-toggle-btn.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+.pf-card-inputs { display: flex; flex-direction: column; gap: 6px; }
+.pf-price-row { display: flex; align-items: center; gap: 6px; }
+.pf-price-row .pf-input { flex: 1; font-weight: 700; font-size: 14px; }
+.pf-rub { font-size: 14px; font-weight: 700; color: var(--orange); }
+
+.pf-export-btn {
+  width: 100%; padding: 13px; border-radius: 11px; border: none;
+  background: var(--navy); color: #fff; font-family: 'Onest', sans-serif;
+  font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 4px;
+  transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.pf-export-btn:hover { background: var(--blue); }
+.pf-export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.pf-del-btn { width: 22px; height: 22px; border-radius: 50%; background: var(--border); border: none; cursor: pointer; font-size: 10px; color: var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s, color 0.15s; }
+.pf-del-btn:hover { background: #fde8e8; color: #e53e3e; }
+.pf-add-btn { background: none; border: 1.5px dashed var(--border); color: var(--muted); font-size: 12px; font-weight: 600; padding: 10px; border-radius: 10px; cursor: pointer; width: 100%; margin-bottom: 8px; transition: border-color 0.15s, color 0.15s; }
+.pf-add-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+
+/* ── Materials ── */
+.mat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mat-card { background: var(--bg); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; border: 1.5px solid transparent; transition: border-color 0.15s; }
+.mat-card:hover { border-color: var(--border); }
+.mat-card-top { display: flex; align-items: center; gap: 10px; }
+.mat-card-icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
+.mat-card-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.mat-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.mat-copy-btn {
+  margin-top: 4px; padding: 7px 12px; border-radius: 8px; border: none;
+  background: var(--navy); color: #fff;
+  font-family: 'Onest', sans-serif; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; width: fit-content;
+}
+.mat-copy-btn:hover { background: var(--blue); }
+.mat-copy-btn.copied { background: #16a34a; }
+.mat-divider { grid-column: 1/-1; height: 1px; background: var(--border); margin: 4px 0; }
+.mat-section-title { grid-column: 1/-1; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-top: 4px; }
+.mat-card-left { display: flex; align-items: center; gap: 10px; }
+.mat-icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
+.mat-info { flex: 1; min-width: 0; }
+.mat-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Script ── */
+.script-stage { border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+.script-stage-head { padding: 13px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; background: #fff; transition: background 0.15s; user-select: none; }
+.script-stage-head:hover { background: var(--bg); }
+.script-num { width: 28px; height: 28px; min-width: 28px; background: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+.script-stage-head.open .script-num { background: var(--orange); }
+.script-stage-title { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; }
+.script-time { font-size: 11px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.script-arrow { font-size: 16px; color: var(--muted); transition: transform 0.2s; line-height: 1; }
+.script-stage-head.open .script-arrow { transform: rotate(90deg); }
+.script-body { display: none; padding: 4px 16px 16px; border-top: 1px solid var(--border); }
+.script-body.open { display: block; }
+.script-phrase { background: rgba(45,81,135,0.06); border-left: 3px solid var(--blue); border-radius: 0 8px 8px 0; padding: 10px 12px; margin: 10px 0; font-size: 13px; line-height: 1.65; color: var(--text); font-style: italic; }
+.script-note { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin: 8px 0; }
+.script-tip { background: rgba(238,100,53,0.07); border-left: 3px solid var(--orange); border-radius: 0 8px 8px 0; padding: 10px 12px; margin: 10px 0; font-size: 12.5px; color: #B05020; line-height: 1.55; }
+
+.pc-preview-outer { flex: 1; min-width: 0; }
+.pc-preview-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.pc-preview-wrap {
+  width: 960px; height: 540px; overflow: hidden;
+  border-radius: 12px; border: 1.5px solid var(--border);
+  box-shadow: 0 4px 20px rgba(28,49,82,0.1);
+  flex-shrink: 0;
+}
+#priceCardFull { transform: scale(0.5); transform-origin: top left; width: 1920px; height: 1080px; }
+
+/* ── PRICES VIEW ── */
+.view-tabs { display: flex; gap: 4px; flex-shrink: 0; margin-right: 4px; }
+.view-tab {
+  padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: transparent; font-family: 'Onest', sans-serif;
+  font-size: 12.5px; font-weight: 600; color: var(--muted);
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.view-tab.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+.prices-view { flex: 1; padding: 28px 40px 100px; min-width: 0; width: 100%; }
+.prices-view.hidden, .grid-area.hidden { display: none; }
+.pa-item { background: #fff; border-radius: 14px; margin-bottom: 8px; overflow: hidden; border: 1.5px solid var(--border); transition: border-color 0.2s; }
+.pa-item.open { border-color: var(--navy); }
+.pa-head { display: flex; align-items: center; gap: 14px; padding: 16px 20px; cursor: pointer; user-select: none; transition: background 0.15s; }
+.pa-head:hover { background: var(--bg); }
+.pa-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
+.pa-info { flex: 1; min-width: 0; }
+.pa-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.pa-age { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.pa-price-hint { font-size: 12.5px; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+.pa-arrow { font-size: 18px; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; line-height: 1; }
+.pa-item.open .pa-arrow { transform: rotate(90deg); }
+.pa-body { display: none; border-top: 1px solid var(--border); padding: 20px 20px 24px; }
+.pa-item.open .pa-body { display: block; }
+.pa-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 8px; }
+.pa-includes-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+.pa-include-pill { background: rgba(45,81,135,0.08); color: var(--blue); font-size: 12px; font-weight: 500; padding: 4px 11px; border-radius: 20px; }
+.pa-prices-grid { display: grid; grid-template-columns: 160px repeat(4, 1fr); gap: 1px; background: var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+.pa-cell { background: #fff; padding: 12px 14px; }
+.pa-cell-corner { background: var(--navy); }
+.pa-cell-head { background: var(--navy); color: rgba(255,255,255,0.85); font-size: 11px; font-weight: 700; text-align: center; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; }
+.pa-cell-label { background: var(--bg); font-size: 12px; font-weight: 700; color: var(--muted); display: flex; align-items: center; }
+.pa-cell-val { text-align: center; font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: center; }
+.pa-cell-val.empty { color: #CBD2DC; font-weight: 400; font-size: 12px; }
+.pa-monthly { display: flex; gap: 8px; }
+
+/* ── PANEL BACKDROP (tablet/mobile) ── */
+.panel-backdrop {
+  display: block;
+  position: fixed; inset: 0; z-index: 149;
+  background: rgba(10,20,40,0.55); backdrop-filter: blur(2px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.panel-backdrop.show { opacity: 1; pointer-events: all; }
+
+/* ── 1600px+: 5 колонок ── */
+@media (min-width: 1600px) {
+  .grid { grid-template-columns: repeat(5, 1fr); }
+  .header { padding: 20px 48px; }
+  .toolbar { padding: 12px 48px; }
+  .grid-area { padding: 28px 48px 100px; }
+  .compare-bar { padding: 14px 48px; }
+}
+
+/* ── 1900px+: 4 широких + больше отступ ── */
+@media (min-width: 1900px) {
+  .grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .header { padding: 22px 72px; }
+  .toolbar { padding: 14px 72px; }
+  .grid-area { padding: 32px 72px 100px; }
+  .compare-bar { padding: 14px 72px; }
+  .hd-title { font-size: 20px; }
+  .stat-val { font-size: 20px; }
+}
+
+/* ── 1280px: чуть плотнее ── */
+@media (max-width: 1280px) {
+  .header { padding: 16px 28px; gap: 16px; }
+  .grid-area { padding: 20px 28px 100px; }
+  .toolbar { padding: 10px 28px; }
+  .compare-bar { padding: 12px 28px; }
+}
+
+/* ── 1100px: 3 колонки, панель уже ── */
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+  .hd-sub { display: none; }
+  .hd-stats { gap: 14px; }
+  .stat-val { font-size: 15px; }
+  .stat-label { font-size: 9px; }
+}
+
+/* ── 900px: 2 колонки, панель как оверлей ── */
+@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .hd-center { max-width: none; }
+  .hd-stats { display: none; }
+
+  .panel-backdrop { display: block; }
+}
+
+/* ── 640px: мобайл ── */
+@media (max-width: 640px) {
+  .header { flex-wrap: wrap; padding: 12px 12px; gap: 8px; }
+  .hd-left { flex: 1; min-width: 0; }
+  .hd-logo { width: 36px; height: 36px; font-size: 14px; flex-shrink: 0; }
+  .hd-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hd-title span { display: none; }
+  .hd-center { order: 3; width: 100%; flex-basis: 100%; max-width: none; }
+  .hd-right { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .hd-btn { padding: 7px 10px; font-size: 11.5px; gap: 4px; }
+
+  .toolbar {
+    padding: 8px 12px;
+    gap: 0;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .toolbar::-webkit-scrollbar { display: none; }
+  .view-tabs { gap: 4px; }
+  .view-tab { padding: 5px 11px; font-size: 12px; }
+  .filter-group { flex-shrink: 0; gap: 5px; padding-right: 12px; }
+  .filter-label { font-size: 10px; }
+  .filter-btn { padding: 5px 10px; font-size: 11.5px; white-space: nowrap; }
+  .toolbar-right { display: none; }
+
+  .grid-area { padding: 14px 12px 120px; }
+  .prices-view { padding: 14px 12px 100px; }
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  .card { padding: 14px 12px 12px; }
+  .card-icon { font-size: 26px; }
+  .card-name { font-size: 13px; }
+  .card-tagline { font-size: 11px; }
+  .card-badge { font-size: 9px; padding: 2px 6px; }
+
+  .compare-bar { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+  .compare-bar-title { display: none; }
+  .compare-items { flex: 1 1 100%; overflow-x: auto; order: 1; padding-bottom: 2px; }
+  .compare-bar-actions { order: 2; width: 100%; justify-content: flex-end; }
+  .compare-placeholder { display: none; }
+  .compare-item { font-size: 12px; padding: 6px 10px; flex-shrink: 0; }
+
+  .modal-box { padding: 20px 12px; border-radius: 16px; width: 96%; }
+  .modal-title { font-size: 17px; }
+  .modal-sub { font-size: 12px; margin-bottom: 16px; }
+  .quiz-q-text { font-size: 16px; }
+  .quiz-options { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .quiz-opt { padding: 11px 12px; font-size: 12.5px; }
+  .quiz-result-cards { gap: 8px; }
+  .quiz-result-card { min-width: 130px; padding: 12px 14px; }
+
+  .compare-table th, .compare-table td { padding: 9px 10px; font-size: 11px; }
+  .compare-table th:first-child { width: 80px; }
+
+  .mat-grid { grid-template-columns: 1fr; }
+  .mat-card { padding: 14px 14px; }
+  .mat-copy-btn { width: 100%; justify-content: center; }
+  .mat-actions { flex-direction: column; gap: 6px; }
+
+  .pa-prices-grid { grid-template-columns: 80px repeat(4, 1fr); }
+  .pa-cell { padding: 9px 6px; }
+  .pa-cell-head { font-size: 10px; }
+  .pa-cell-label { font-size: 11px; }
+  .pa-cell-val { font-size: 12px; }
+  .pa-head { padding: 14px 14px; gap: 10px; }
+  .pa-icon { font-size: 22px; }
+  .pa-name { font-size: 14px; }
+  .pa-price-hint { display: none; }
+  .pa-body { padding: 14px 12px 18px; }
+  .pa-monthly { flex-direction: column; gap: 6px; }
+}
+
+/* ── 400px: очень маленький экран ── */
+@media (max-width: 400px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+/* ── SIDE MENU ── */
+.hd-hamburger {
+  display: none;
+  width: 38px; height: 38px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  color: #fff; font-size: 18px; cursor: pointer;
+  align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background 0.15s;
+}
+.hd-hamburger:hover { background: rgba(255,255,255,0.18); }
+
+.side-overlay {
+  position: fixed; inset: 0; z-index: 290;
+  background: rgba(10,20,40,0.55); backdrop-filter: blur(3px);
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.side-overlay.open { opacity: 1; pointer-events: all; }
+
+.side-menu {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 260px; z-index: 300;
+  background: var(--navy);
+  transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+}
+.side-menu.open { transform: translateX(0); }
+.side-menu-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.side-menu-title { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1.2px; }
+.side-menu-close {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,0.1); border: none;
+  color: rgba(255,255,255,0.6); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.side-menu-close:hover { background: rgba(255,255,255,0.2); }
+.side-menu-body { display: flex; flex-direction: column; padding: 12px 12px; gap: 6px; }
+.side-menu-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; border-radius: 12px; border: none;
+  background: rgba(255,255,255,0.07); color: #fff;
+  font-family: 'Onest', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; text-align: left; transition: background 0.15s;
+}
+.side-menu-btn:hover { background: rgba(255,255,255,0.14); }
+.side-menu-btn-icon { font-size: 20px; flex-shrink: 0; }
+
+@media (max-width: 640px) {
+  .hd-right .hd-btn { display: none; }
+  .hd-hamburger { display: flex; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="hd-left">
+    <img class="hd-logo" src="assets/logo-matrius.png" alt="MATRIUS">
+    <div>
+      <div class="hd-title">MATRIUS</div>
+      <div class="hd-sub">Для менеджеров по продажам</div>
+    </div>
+  </div>
+  <div class="hd-right">
+    <button class="hd-btn btn-fav" id="priceCardBtn">✏️ Прайс-карточка</button>
+    <button class="hd-btn btn-fav" id="presentationsBtn">📊 Презентации</button>
+    <button class="hd-btn btn-fav" id="materialsBtn">📤 Родителям</button>
+    <button class="hd-btn btn-fav" id="scriptBtn">📋 Скрипт</button>
+    <button class="hd-hamburger" id="hamburgerBtn">☰</button>
+  </div>
+</header>
+
+<!-- SIDE MENU -->
+<div class="side-overlay" id="sideOverlay"></div>
+<div class="side-menu" id="sideMenu">
+  <div class="side-menu-head">
+    <span class="side-menu-title">Инструменты</span>
+    <button class="side-menu-close" id="sideMenuClose">✕</button>
+  </div>
+  <div class="side-menu-body">
+    <button class="side-menu-btn" id="smPriceCard"><span class="side-menu-btn-icon">✏️</span> Прайс-карточка</button>
+    <button class="side-menu-btn" id="smPresentations"><span class="side-menu-btn-icon">📊</span> Презентации</button>
+    <button class="side-menu-btn" id="smMaterials"><span class="side-menu-btn-icon">📤</span> Родителям</button>
+    <button class="side-menu-btn" id="smScript"><span class="side-menu-btn-icon">📋</span> Скрипт</button>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="view-tabs">
+    <button class="view-tab active" id="viewMapBtn" onclick="switchView('map')">Карта курсов</button>
+    <button class="view-tab" id="viewPricesBtn" onclick="switchView('prices')">💰 Все цены</button>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Возраст:</span>
+    <button class="filter-btn active" data-age="all">Все</button>
+    <button class="filter-btn" data-age="4-6">4–6 лет</button>
+    <button class="filter-btn" data-age="7-9">7–9 лет</button>
+    <button class="filter-btn" data-age="10-14">10–14 лет</button>
+    <button class="filter-btn" data-age="15-17">15–17 лет</button>
+  </div>
+<div class="toolbar-right">Показано: <span class="count-badge" id="countBadge">8</span> из 8</div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+  <div class="grid-area">
+    <div class="grid" id="grid"></div>
+  </div>
+  <!-- PRICES VIEW -->
+  <div class="prices-view hidden" id="pricesView">
+    <div id="pricesAccordion"></div>
+  </div>
+</div>
+
+<div class="panel" id="panel">
+  <div class="panel-inner" id="panelInner">
+    <button class="panel-close" id="panelClose">✕</button>
+    <div id="panelContent"></div>
+  </div>
+</div>
+<div class="panel-backdrop" id="panelBackdrop"></div>
+
+
+<!-- PRESENTATIONS MODAL -->
+<div class="modal-overlay" id="presentationsModal">
+  <div class="modal-box" style="max-width:620px">
+    <button class="modal-close" id="closePresentationsModal">✕</button>
+    <div class="modal-title">📊 Презентации по курсам</div>
+    <div class="modal-sub">Открыть или скопировать ссылку для родителя</div>
+    <div class="mat-grid" id="presGrid"></div>
+  </div>
+</div>
+
+<!-- MATERIALS MODAL -->
+<div class="modal-overlay" id="materialsModal">
+  <div class="modal-box" style="max-width:620px">
+    <button class="modal-close" id="closeMaterialsModal">✕</button>
+    <div class="modal-title">📤 Материалы для родителей</div>
+    <div class="modal-sub">Копируй ссылку — отправляй в чат с родителем</div>
+    <div class="mat-grid" id="matGrid"></div>
+  </div>
+</div>
+
+<!-- SCRIPT MODAL -->
+<div class="modal-overlay" id="scriptModal">
+  <div class="modal-box" style="max-width:640px">
+    <button class="modal-close" id="closeScriptModal">✕</button>
+    <div class="modal-title">📋 Скрипт шоу-урока</div>
+    <div class="modal-sub">Пошаговая шпаргалка для менеджера · 45 минут</div>
+
+    <div class="script-stage">
+      <div class="script-stage-head" onclick="toggleScript(this)">
+        <div class="script-num">1</div>
+        <div class="script-stage-title">Знакомство и настройка</div>
+        <span class="script-time">5 мин</span>
+        <span class="script-arrow">›</span>
+      </div>
+      <div class="script-body">
+        <p class="script-note">Цель: снять напряжение, узнать контекст, запомнить имя ребёнка.</p>
+        <div class="script-phrase">«Привет! Меня зовут [имя], я тренер в Matrius. Как тебя зовут? Сколько лет?»</div>
+        <div class="script-phrase">«[Имя ребёнка], ты любишь решать загадки? А что в школе нравится больше всего?»</div>
+        <p class="script-note">Родителям:</p>
+        <div class="script-phrase">«Расскажите — почему решили прийти именно сейчас? Что хотите улучшить?»</div>
+        <div class="script-tip">⚡ Запишите имя ребёнка и главную боль родителя — пригодится при закрытии.</div>
+      </div>
+    </div>
+
+    <div class="script-stage">
+      <div class="script-stage-head" onclick="toggleScript(this)">
+        <div class="script-num">2</div>
+        <div class="script-stage-title">Диагностика «до»</div>
+        <span class="script-time">5 мин</span>
+        <span class="script-arrow">›</span>
+      </div>
+      <div class="script-body">
+        <p class="script-note">Цель: зафиксировать стартовый уровень — это создаст эффект «до / после».</p>
+        <div class="script-phrase">«[Имя], давай сначала посмотрим, что ты уже умеешь. Это не контрольная — просто чтобы я понял, с чего начать.»</div>
+        <p class="script-note">Замерьте: скорость чтения / скорость счёта / произношение — в зависимости от курса. Зафиксируйте цифру.</p>
+        <div class="script-phrase">«Отлично! Запомни — сейчас [Х слов/мин или Х задач]. Через 20 минут сравним.»</div>
+        <div class="script-tip">⚡ Обязательно озвучьте цифру родителю вслух — они запомнят точку отсчёта.</div>
+      </div>
+    </div>
+
+    <div class="script-stage">
+      <div class="script-stage-head" onclick="toggleScript(this)">
+        <div class="script-num">3</div>
+        <div class="script-stage-title">Демо-блок: сам урок</div>
+        <span class="script-time">20 мин</span>
+        <span class="script-arrow">›</span>
+      </div>
+      <div class="script-body">
+        <p class="script-note">Цель: вовлечь, показать метод, вызвать эмоцию у ребёнка и родителя.</p>
+        <div class="script-phrase">«[Имя], сейчас будем тренировать мозг — это как спортзал, только для головы. Готов?»</div>
+        <p class="script-note"><strong>Блок 1 (5 мин):</strong> нейрогимнастика — упражнение для активации обоих полушарий.</p>
+        <div class="script-phrase">«Видите? Мы не объясняем правила — мы тренируем навык. Мозг запоминает через действие.»</div>
+        <p class="script-note"><strong>Блок 2 (10 мин):</strong> основное упражнение на платформе Matrius.</p>
+        <p class="script-note"><strong>Блок 3 (5 мин):</strong> закрепление, игровой элемент платформы.</p>
+        <div class="script-tip">⚡ Следите за реакцией ребёнка — если горят глаза, укажите на это родителю: «Смотрите, как включился!»</div>
+      </div>
+    </div>
+
+    <div class="script-stage">
+      <div class="script-stage-head" onclick="toggleScript(this)">
+        <div class="script-num">4</div>
+        <div class="script-stage-title">Диагностика «после»</div>
+        <span class="script-time">3 мин</span>
+        <span class="script-arrow">›</span>
+      </div>
+      <div class="script-body">
+        <p class="script-note">Цель: создать эффект «вау» — показать результат за одно занятие.</p>
+        <div class="script-phrase">«[Имя], повтори то же задание, что в начале. Посмотрим, что изменилось!»</div>
+        <div class="script-phrase">«За 20 минут — уже [результат]. Представьте, что будет за 3 месяца системных занятий?»</div>
+        <div class="script-tip">⚡ Если прогресса мало: «Сегодня закладывали нейронные связи. Они не видны за один урок, но работают.»</div>
+      </div>
+    </div>
+
+    <div class="script-stage">
+      <div class="script-stage-head" onclick="toggleScript(this)">
+        <div class="script-num">5</div>
+        <div class="script-stage-title">Презентация курса и цен</div>
+        <span class="script-time">7 мин</span>
+        <span class="script-arrow">›</span>
+      </div>
+      <div class="script-body">
+        <p class="script-note">Цель: переключить с эмоции на логику — показать формат, цену, гарантию.</p>
+        <div class="script-phrase">«Два формата: индивидуально тет-а-тет с тренером, и мини-группа 4–5 человек. Оба — живые уроки, не записи.»</div>
+        <div class="script-phrase">«Индивидуально — от [цена]/мес. Это [цена÷8] за занятие. Группа — от [цена]/мес. 2 раза в неделю по 45 минут.»</div>
+        <div class="script-phrase">«Первые результаты — через месяц. Успеваемость в плюс — через 3 месяца. Мы даём на это гарантию.»</div>
+        <p class="script-note">Покажите карту курсов с описанием и блоком цен.</p>
+        <div class="script-tip">⚡ Не называйте цену раньше, чем покажете ценность. Сначала результат — потом стоимость.</div>
+      </div>
+    </div>
+
+    <div class="script-stage">
+      <div class="script-stage-head" onclick="toggleScript(this)">
+        <div class="script-num">6</div>
+        <div class="script-stage-title">Работа с возражениями</div>
+        <span class="script-time">5 мин</span>
+        <span class="script-arrow">›</span>
+      </div>
+      <div class="script-body">
+        <p class="script-note">Используйте блок «Возражения» в карте курсов — там готовые ответы. Общий алгоритм: согласиться → развернуть.</p>
+        <div class="script-phrase">«Понимаю вас. [Парафраз]. Многие родители говорят то же самое до начала. На практике: [ответ].»</div>
+        <p class="script-note"><strong>«Дорого»</strong> → «Одно занятие — [цена÷8] ₽. Это меньше, чем час репетитора в Москве. А навык — навсегда.»</p>
+        <p class="script-note"><strong>«Подумаем»</strong> → «Что именно хотите обдумать? Отвечу прямо сейчас — чтобы не терять время ребёнка.»</p>
+        <p class="script-note"><strong>«Онлайн не работает»</strong> → «50 000 учеников и 7 лет практики говорят обратное. Вы только что видели результат сами.»</p>
+        <div class="script-tip">⚡ Не спорьте — соглашайтесь и разворачивайте: «Да, и именно поэтому...»</div>
+      </div>
+    </div>
+
+    <div class="script-stage">
+      <div class="script-stage-head" onclick="toggleScript(this)">
+        <div class="script-num">7</div>
+        <div class="script-stage-title">Закрытие сделки</div>
+        <span class="script-time">5 мин</span>
+        <span class="script-arrow">›</span>
+      </div>
+      <div class="script-body">
+        <p class="script-note">Цель: получить решение — да / нет / конкретная дата перезвона.</p>
+        <div class="script-phrase">«[Имя родителя], вы видели сами — за один урок уже динамика. Вопрос: начнёте сейчас или упустите ещё несколько месяцев? Какой формат ближе — индивидуально или группа?»</div>
+        <div class="script-phrase">«Запишу [имя ребёнка] на первое занятие — ближайшая дата [дата]. Оплатить можно сразу или после пробного урока.»</div>
+        <p class="script-note">Если не готовы сейчас:</p>
+        <div class="script-phrase">«Хорошо. Когда удобно созвониться — завтра в первой половине дня? Пришлю ссылку на карту курсов и цены.»</div>
+        <div class="script-tip">⚡ Не закрывайте разговор без конкретного следующего шага: запись / дата перезвона / контакт в CRM.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar" id="compareBar">
+  <div class="compare-bar-title">Сравнение:</div>
+  <div class="compare-items" id="compareItems"></div>
+  <div class="compare-bar-actions">
+    <button class="btn-clear-compare" id="clearCompare">Очистить</button>
+    <button class="btn-do-compare" id="doCompare" disabled>Сравнить →</button>
+  </div>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="modal-overlay" id="compareModal">
+  <div class="modal-box" style="max-width:800px">
+    <button class="modal-close" id="closeCompareModal">✕</button>
+    <div class="modal-title">Сравнение курсов</div>
+    <div class="modal-sub">Выбери подходящий вариант для ребёнка</div>
+    <div id="compareTableWrap"></div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div class="modal-overlay" id="quizModal">
+  <div class="modal-box" style="max-width:520px">
+    <button class="modal-close" id="closeQuiz">✕</button>
+    <div id="quizContent"></div>
+  </div>
+</div>
+
+<!-- PRICE CARD MODAL -->
+<div class="modal-overlay" id="priceCardModal">
+  <div class="modal-box" id="priceModalBox">
+    <button class="modal-close" id="closePriceModal">✕</button>
+    <div class="modal-title">Генератор прайс-карточки</div>
+    <div class="modal-sub">Редактируй поля — карточка обновляется в реальном времени</div>
+
+    <div class="pc-layout">
+      <!-- FORM -->
+      <div class="pc-form">
+
+        <div class="pf-section">
+          <div class="pf-row">
+            <span class="pf-label">Фон</span>
+            <input type="color" class="pf-color-input" id="pcBgColor" value="#3D6094">
+          </div>
+          <div class="pf-row">
+            <span class="pf-label">Заголовок</span>
+            <input type="text" class="pf-input" id="pcTitle" value="СТОИМОСТЬ АБОНЕМЕНТОВ">
+          </div>
+          <div class="pf-row">
+            <span class="pf-label">Тип</span>
+            <input type="text" class="pf-input" id="pcTypeName" value="Групповой абонемент">
+          </div>
+        </div>
+
+        <div id="pcCardsForm"></div>
+
+        <button class="pf-export-btn" id="exportPriceBtn">↓ Скачать PNG (1920×1080)</button>
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="pc-preview-outer">
+        <div class="pc-preview-label">Предпросмотр</div>
+        <div class="pc-preview-wrap">
+          <div id="priceCardFull"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const courses = [
+  {
+    id:1, icon:'🧮', color:'#EE6435', badge:'Топ продаж', badgeColor:'#EE6435', popularity:92,
+    name:'Ментальная арифметика', tagline:'Устный счёт быстрее калькулятора', age:'5–9 лет', ageMin:5, ageMax:9, hasGroup:true,
+    desc:'Ребёнок учится считать в уме с помощью японских счётов абакус. Метод одновременно активирует оба полушария мозга — развивает фотографическую память, молниеносное мышление и концентрацию. Занятия проходят в игровом формате с нейрогимнастикой.',
+    results:['Считает быстрее калькулятора без вспомогательных средств','Развитие фотографической памяти и концентрации','Уверенность в точных науках, лидерские качества'],
+    forText:'Дети 5–9 лет. Особенно эффективен, пока не сформировался страх перед математикой. Подходит как для подготовки к школе, так и для опережающего развития.',
+    formats:['Индивидуально','Группа 4–5 чел.'],
+    price:'от 6 820 ₽/мес', priceNum:6820,
+    priceIndividual:'от 11 320 ₽/мес', priceGroup:'от 6 820 ₽/мес',
+    duration:'2 занятия × 45 мин в неделю', resultTime:'Первые результаты через 1 мес.',
+    objections:[
+      {q:'Зачем, если есть калькулятор?',a:'Ментальная арифметика развивает не счёт, а мозг: память, концентрацию и скорость мышления. Это навык, который работает всю жизнь.'},
+      {q:'Онлайн неэффективно',a:'Платформа с игровыми тренажёрами и живым преподавателем даёт те же результаты — это подтверждают 50 000+ учеников.'},
+      {q:'Дорого',a:'Одно занятие — меньше 850 ₽. А навык, который получает ребёнок, работает всю жизнь.'},
+    ],
+    quizGoals:['math','development'],
+  },
+  {
+    id:2, icon:'📖', color:'#2D5187', badge:'Хит сезона', badgeColor:'#2D5187', popularity:88,
+    name:'Скорочтение', tagline:'До 700 слов в минуту с пониманием', age:'6–16 лет', ageMin:6, ageMax:16, hasGroup:true,
+    desc:'Техники быстрого чтения с полным пониманием и запоминанием. Ребёнок перестаёт «застревать» на словах и начинает воспринимать текст блоками. Скорость чтения растёт на 30–40% уже за первые 5 занятий, понимание — на 70%.',
+    results:['Скорость чтения до 700 слов/мин','Понимание прочитанного на 70% лучше','Запоминание 92% прочитанного текста'],
+    forText:'Дети 6–16 лет. Подходит как школьникам с трудностями в чтении, так и тем, кто хочет читать быстрее и лучше запоминать материал по всем предметам.',
+    formats:['Индивидуально','Группа 4–5 чел.'],
+    price:'от 6 820 ₽/мес', priceNum:6820,
+    priceIndividual:'от 11 320 ₽/мес', priceGroup:'от 6 820 ₽/мес',
+    duration:'2 занятия × 45 мин в неделю', resultTime:'Успеваемость в плюс через 3 мес.',
+    objections:[
+      {q:'Ребёнок уже умеет читать',a:'Умеет — но как быстро? Скорочтение — это не навык читать, а навык понимать и запоминать в 3–5 раз быстрее. Это влияет на все предметы.'},
+      {q:'Зачем такая скорость?',a:'700 слов/мин — это средний результат. Главное — рост концентрации и памяти, которые помогают в учёбе в целом.'},
+      {q:'Не навредит ли быстрое чтение пониманию?',a:'Нет. Программа строится так, что скорость растёт параллельно с уровнем понимания — это проверено методикой.'},
+    ],
+    quizGoals:['school','development','future'],
+  },
+  {
+    id:3, icon:'📐', color:'#1C3152', badge:null, badgeColor:'#1C3152', popularity:76,
+    name:'Математика', tagline:'Уверенность в числах и формулах', age:'7–14 лет', ageMin:7, ageMax:14, hasGroup:true,
+    desc:'Программа закрывает пробелы в школьной математике и формирует системное понимание предмета. Без зубрёжки — через логику, игровой формат и нейрогимнастику. Методика помогла тысячам детей полюбить предмет и находить логику решения на 90% быстрее.',
+    results:['Оценки 4–5 за 12 недель обучения','Опережение сверстников по мышлению на 70%','Домашние задания в 2–3 раза быстрее'],
+    forText:'Дети 7–14 лет с пробелами в программе или те, кто хочет опередить класс. Подходит и для подтягивания до 4–5, и для олимпиадной подготовки.',
+    formats:['Индивидуально','Группа 4–5 чел.'],
+    price:'от 6 820 ₽/мес', priceNum:6820,
+    priceIndividual:'от 11 320 ₽/мес', priceGroup:'от 6 820 ₽/мес',
+    duration:'2 занятия × 45 мин в неделю', resultTime:'Первые результаты через 1 мес.',
+    objections:[
+      {q:'В школе же есть учитель',a:'Учитель работает с классом из 30 человек — у него нет возможности разобрать именно пробелы вашего ребёнка. Мы работаем персонально.'},
+      {q:'Ребёнок просто ленится',a:'Часто за «ленью» стоит непонимание. Когда ребёнок начинает понимать — мотивация появляется сама.'},
+      {q:'Результат нескоро',a:'Первые изменения в оценках — уже через 4–6 недель. Мы даём персональный план с конкретными целями.'},
+    ],
+    quizGoals:['school','math'],
+  },
+  {
+    id:4, icon:'🗣️', color:'#EE6435', badge:'Только индивидуально', badgeColor:'#6B7A8D', popularity:71,
+    name:'Логопедия', tagline:'Чёткая речь и правильное произношение', age:'4–17 лет', ageMin:4, ageMax:17, hasGroup:false,
+    desc:'Индивидуальные занятия с профессиональным логопедом онлайн. Корректируем произношение звуков (С, Ш, Р, Л), устраняем заикание, развиваем связную речь. 75% детей получают видимый результат уже за 3 месяца.',
+    results:['75% детей — результат за 3 месяца','Правильное произношение всех звуков за 5–10 занятий','Развитие связной речи и уверенность в общении'],
+    forText:'Дети 4–17 лет с нарушениями произношения (С, Ш, Р, Л), заиканием, невнятной речью, трудностями с пересказом или подготовкой к школьному обучению.',
+    formats:['Только индивидуально'],
+    price:'от 10 906 ₽/мес', priceNum:10906,
+    priceIndividual:'от 10 906 ₽/мес',
+    duration:'2 занятия × 30–60 мин в неделю', resultTime:'Результат за 5–10 занятий.',
+    objections:[
+      {q:'Логопед онлайн — это работает?',a:'Да. Большинство логопедических упражнений — артикуляционные, они отлично выполняются через видеосвязь. Это подтверждает наш опыт работы с тысячами детей.'},
+      {q:'Мы уже ходили к логопеду',a:'Очный и онлайн-форматы дополняют друг друга. Часто дети расслабляются дома и прогресс идёт быстрее.'},
+      {q:'Дорого для логопедии',a:'Индивидуальный логопед в Москве стоит 2 000–4 000 ₽ за занятие. Наш формат 2 занятия в неделю — это выгоднее при сопоставимом качестве.'},
+    ],
+    quizGoals:['speech'],
+  },
+  {
+    id:5, icon:'🎒', color:'#2D5187', badge:'Новинка', badgeColor:'#22C55E', popularity:65,
+    name:'Подготовка к школе', tagline:'В первый класс — с уверенностью', age:'6–7 лет', ageMin:6, ageMax:7, hasGroup:true,
+    desc:'Комплексная программа по трём модулям: математика и логика, развитие речи и грамоты, окружающий мир. Лицензированная программа на основе ФГОС, можно оплатить материнским капиталом. Живые уроки, не записи.',
+    results:['Читает слоги и простые слова, считает до 20','Развитая речь, базовые навыки письма','Готовность к режиму и нагрузке 1 класса'],
+    forText:'Дети 6–7 лет, которые неусидчивы, плохо читают или пишут, имеют слабый словарный запас, стесняются или быстро устают. Идеально перед поступлением в школу.',
+    formats:['Индивидуально','Группа 4–5 чел.'],
+    price:'от 11 000 ₽/мес', priceNum:11000,
+    priceIndividual:'от 15 350 ₽/мес', priceGroup:'от 11 000 ₽/мес',
+    duration:'2 занятия × 45 мин в неделю', resultTime:'Готовность к школе за 3 мес.',
+    objections:[
+      {q:'Ребёнок ещё маленький',a:'6–7 лет — идеальный возраст: мозг гибкий, интерес к учёбе высокий. Именно сейчас закладывается отношение к школе на годы вперёд.'},
+      {q:'В садике же готовят',a:'В садике — групповые занятия по общей программе. У нас — индивидуальный темп, разбор слабых мест именно вашего ребёнка.'},
+      {q:'Зачем, если и так пойдёт?',a:'Дети, которые приходят в 1 класс подготовленными, легче адаптируются и реже испытывают тревогу от нагрузки. Это снижает стресс для всей семьи.'},
+    ],
+    quizGoals:['school','development'],
+  },
+  {
+    id:6, icon:'📝', color:'#1C3152', badge:null, badgeColor:'#1C3152', popularity:68,
+    name:'Русский язык', tagline:'Грамотность без зубрёжки', age:'1–4 класс · 6–11 лет', ageMin:6, ageMax:11, hasGroup:true,
+    desc:'12-недельный интенсив для учеников 1–4 класса. Нейропсихологический метод: развиваем память, внимание и самоконтроль через квесты и игровые задания — без механической зубрёжки правил. Улучшение почерка и снижение ошибок уже за 3 недели.',
+    results:['Рост оценок и грамотность за 12 недель','Снижение «глупых» ошибок за 3 недели','Самостоятельность при диктантах и изложениях'],
+    forText:'Ученики 1–4 класса с трудностями по русскому, слабой грамотностью или для опережающего развития. Особенно актуально перед началом учебного года.',
+    formats:['Индивидуально','Группа 4–5 чел.'],
+    price:'от 6 820 ₽/мес', priceNum:6820,
+    priceIndividual:'от 11 320 ₽/мес', priceGroup:'от 6 820 ₽/мес',
+    duration:'2 занятия × 45 мин в неделю', resultTime:'Первые результаты за 3 недели.',
+    objections:[
+      {q:'У ребёнка просто слабая грамотность',a:'Как правило, за слабой грамотностью стоят конкретные пробелы — 1–2 правила, которые ребёнок не усвоил. Мы их находим и закрываем.'},
+      {q:'Это не срочно',a:'Орфографические навыки формируются именно в начальной школе. Упущенное сейчас потребует двойных усилий в средней школе.'},
+    ],
+    quizGoals:['school','speech'],
+  },
+  {
+    id:7, icon:'🌍', color:'#EE6435', badge:null, badgeColor:'#EE6435', popularity:80,
+    name:'Английский язык', tagline:'Разговорный с первого урока', age:'1–4 класс · 6–11 лет', ageMin:6, ageMax:11, hasGroup:true,
+    desc:'Коммуникативный подход: 80% времени урока — живая речевая практика. Ребёнок учится выражать мысли, а не просто отвечать по учебнику. Квесты, ролевые игры, диалоги — без страха ошибок.',
+    results:['Свободно выражает мысли на английском','+50–70 слов словарного запаса за курс','Понимает речь преподавателя без перевода'],
+    forText:'Дети 1–4 класса — как начинающие, так и те, кому нужно подтянуть разговорный навык. Особенно эффективно летом, чтобы не забыть язык и начать говорить.',
+    formats:['Индивидуально','Группа 4–5 чел.'],
+    price:'от 6 820 ₽/мес', priceNum:6820,
+    priceIndividual:'от 11 320 ₽/мес', priceGroup:'от 6 820 ₽/мес',
+    duration:'2 занятия × 45 мин в неделю', resultTime:'Первые разговорные навыки за 1–2 мес.',
+    objections:[
+      {q:'В школе есть английский',a:'В школе — 2 урока в неделю в группе 25 человек. Разговорного навыка это не даёт. Мы работаем над живым общением с первого занятия.'},
+      {q:'Рано начинать',a:'6–8 лет — лучший возраст для иностранного языка: нет барьеров, произношение закладывается легко, без акцента.'},
+    ],
+    quizGoals:['future','school'],
+  },
+  {
+    id:8, icon:'💻', color:'#2D5187', badge:'Тренд', badgeColor:'#8B5CF6', popularity:85,
+    name:'IT для детей', tagline:'Программирование и цифровое мышление', age:'8–17 лет', ageMin:8, ageMax:17, hasGroup:true,
+    desc:'Обучение программированию: от Scratch и Python до создания игр и сайтов. Развиваем алгоритмическое мышление — навык, актуальный в любой профессии будущего.',
+    results:['Создаёт собственные игры и программы','Понимает логику алгоритмов','Навык, востребованный в любой профессии'],
+    forText:'Дети 8–17 лет — от новичков до тех, кто хочет углубить знания в программировании.',
+    formats:['Индивидуально','Группа 4–5 чел.'],
+    price:'от 6 820 ₽/мес', priceNum:6820,
+    priceIndividual:'от 11 320 ₽/мес', priceGroup:'от 6 820 ₽/мес',
+    duration:'2 занятия × 45 мин в неделю', resultTime:'Первый проект за 1–2 мес.',
+    objections:[
+      {q:'Ребёнок итак много сидит за компьютером',a:'IT-обучение — это не «сидение», а создание. Ребёнок учится управлять технологией, а не быть её потребителем. Это принципиально другое.'},
+      {q:'Для профессионалов это слишком рано',a:'Начинать в 8–10 лет — норма для IT. Многие известные разработчики начали именно в этом возрасте.'},
+      {q:'Непонятно, где пригодится',a:'Цифровое мышление нужно не только программистам. Это логика, структурирование задач, умение думать алгоритмически — полезно в любой профессии.'},
+    ],
+    quizGoals:['future','development'],
+  },
+];
+
+// ── PRICES DATA ──
+const courseIncludes = {
+  1: ['2 занятия в неделю × 45 мин','Доступ к платформе 24/7','Игровые тренажёры абакус','Личный кабинет родителя','Еженедельный отчёт преподавателя'],
+  2: ['2 занятия в неделю × 45 мин','Доступ к платформе 24/7','Тренажёры скорочтения','Личный кабинет родителя','Еженедельный отчёт преподавателя'],
+  3: ['2 занятия в неделю × 45 мин','Доступ к платформе 24/7','Задачники и интерактивные упражнения','Личный кабинет родителя','Еженедельный отчёт преподавателя'],
+  4: ['2 занятия в неделю × 30–60 мин','Только индивидуальный формат','Артикуляционные материалы','Личный кабинет родителя','Отчёт после каждого занятия'],
+  5: ['2 занятия в неделю × 45 мин','3 модуля: математика, речь, мир','Доступ к платформе 24/7','Личный кабинет родителя','Возможна оплата маткапиталом'],
+  6: ['2 занятия в неделю × 45 мин','Квесты и нейропсихологические задания','Доступ к платформе 24/7','Личный кабинет родителя','Еженедельный отчёт преподавателя'],
+  7: ['2 занятия в неделю × 45 мин','Ролевые игры и диалоги','Доступ к платформе 24/7','Личный кабинет родителя','Еженедельный отчёт преподавателя'],
+  8: ['2 занятия в неделю × 45 мин','Scratch, Python, создание игр','Доступ к платформе 24/7','Личный кабинет родителя','Индивидуальный проект по итогам'],
+};
+const courseSubs = {
+  1: { individual:{m3:null,m6:null,m9:null,m12:null}, group:{m3:null,m6:null,m9:null,m12:null} },
+  2: { individual:{m3:null,m6:null,m9:null,m12:null}, group:{m3:null,m6:null,m9:null,m12:null} },
+  3: { individual:{m3:null,m6:null,m9:null,m12:null}, group:{m3:null,m6:null,m9:null,m12:null} },
+  4: { individual:{m3:null,m6:null,m9:null,m12:null} },
+  5: { individual:{m3:null,m6:null,m9:null,m12:null}, group:{m3:null,m6:null,m9:null,m12:null} },
+  6: { individual:{m3:null,m6:null,m9:null,m12:null}, group:{m3:null,m6:null,m9:null,m12:null} },
+  7: { individual:{m3:null,m6:null,m9:null,m12:null}, group:{m3:null,m6:null,m9:null,m12:null} },
+  8: { individual:{m3:null,m6:null,m9:null,m12:null}, group:{m3:null,m6:null,m9:null,m12:null} },
+};
+courses.forEach(c => { c.includes = courseIncludes[c.id]||[]; c.subs = courseSubs[c.id]||{}; });
+
+// State
+let favorites = JSON.parse(localStorage.getItem('matrius_favs') || '[]');
+let compareList = [];
+let activeId = null;
+let favFilter = false;
+let searchQ = '';
+let ageFilter = 'all';
+let formatFilter = 'all';
+
+// Quiz state
+const quizSteps = [
+  { q: 'Сколько лет ребёнку?', opts: [{e:'🐣', t:'4–6 лет', v:'4-6'},{e:'🧒', t:'7–9 лет', v:'7-9'},{e:'👦', t:'10–14 лет', v:'10-14'},{e:'🧑', t:'15–17 лет', v:'15-17'}] },
+  { q: 'Какая главная цель?', opts: [{e:'📚', t:'Успеваемость в школе', v:'school'},{e:'🧠', t:'Развитие способностей', v:'development'},{e:'🚀', t:'Навыки для будущего', v:'future'},{e:'🗣️', t:'Работа над речью', v:'speech'},{e:'🔢', t:'Математика и счёт', v:'math'}] },
+  { q: 'Какой формат предпочтительнее?', opts: [{e:'👤', t:'Индивидуально', v:'individual'},{e:'👥', t:'В группе (дешевле)', v:'group'},{e:'🤷', t:'Неважно', v:'any'}] },
+];
+let quizAnswers = [];
+let quizStep = 0;
+
+// ── BUILD GRID ──
+const grid = document.getElementById('grid');
+
+function buildGrid() {
+  grid.innerHTML = '';
+  const visible = getVisible();
+  document.getElementById('countBadge').textContent = visible.length;
+
+  if (!visible.length) {
+    grid.innerHTML = `<div class="no-results"><span class="no-results-icon">🔍</span><p>Ничего не найдено.<br>Попробуй изменить фильтры.</p></div>`;
+    return;
+  }
+
+  visible.forEach(c => {
+    const isFav = favorites.includes(c.id);
+    const isComp = compareList.includes(c.id);
+    const div = document.createElement('div');
+    div.className = 'card' + (activeId === c.id ? ' active' : '');
+    div.dataset.id = c.id;
+    div.innerHTML = `
+      <div class="card-top-row">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+          <span class="card-icon">${c.icon}</span>
+          ${c.badge ? `<span class="card-badge" style="background:${c.badgeColor}15;color:${c.badgeColor}">${c.badge}</span>` : ''}
+        </div>
+        <div class="card-actions">
+          <button class="card-compare-btn ${isComp?'active':''}" data-id="${c.id}" title="Сравнить">⇄</button>
+        </div>
+      </div>
+      <div style="position:relative">
+        <div class="card-name">${c.name}</div>
+        <div class="card-tagline">${c.tagline}</div>
+      </div>
+      <div class="popularity-row">
+        <div class="popularity-label">
+          <span class="popularity-text">Популярность</span>
+          <span class="popularity-num">${c.popularity}%</span>
+        </div>
+        <div class="popularity-bar">
+          <div class="popularity-fill" style="width:${c.popularity}%;background:${c.color}"></div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="card-age">${c.age}</span>
+        <div class="card-arrow">→</div>
+      </div>`;
+    div.style.setProperty('--c', c.color);
+    const style = document.createElement('style');
+    style.textContent = `.card[data-id="${c.id}"]::after{background:${c.color}}`;
+    div.appendChild(style);
+
+    div.addEventListener('click', e => {
+      if (e.target.closest('.card-fav-btn') || e.target.closest('.card-compare-btn')) return;
+      openPanel(c);
+    });
+    div.querySelector('.card-compare-btn').addEventListener('click', e => { e.stopPropagation(); toggleCompare(c.id); });
+    grid.appendChild(div);
+  });
+}
+
+function getVisible() {
+  return courses.filter(c => {
+    if (favFilter && !favorites.includes(c.id)) return false;
+    if (searchQ && !c.name.toLowerCase().includes(searchQ) && !c.tagline.toLowerCase().includes(searchQ)) return false;
+    if (ageFilter !== 'all') {
+      const [a, b] = ageFilter.split('-').map(Number);
+      if (c.ageMax < a || c.ageMin > b) return false;
+    }
+    if (formatFilter === 'group' && !c.hasGroup) return false;
+    return true;
+  });
+}
+
+// ── PANEL ──
+function openPanel(c) {
+  activeId = c.id;
+  document.getElementById('panelContent').innerHTML = `
+    <span class="panel-icon">${c.icon}</span>
+    <span class="panel-age-badge">Возраст: ${c.age}</span>
+    <div class="panel-name">${c.name}</div>
+    <div class="panel-tagline">${c.tagline}</div>
+    <div class="panel-divider"></div>
+    <div class="panel-section-label">О курсе</div>
+    <p class="panel-desc">${c.desc}</p>
+    <div class="panel-section-label">Ключевые результаты</div>
+    <ul class="results-list">${c.results.map(r=>`<li><span class="result-check">✓</span>${r}</li>`).join('')}</ul>
+    <div class="panel-section-label">Кому подходит</div>
+    <div class="for-block">${c.forText}</div>
+    <div class="panel-section-label">Форматы</div>
+    <div class="formats-row">${c.formats.map(f=>`<span class="format-pill">${f}</span>`).join('')}</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div class="price-block" style="flex:1;margin-bottom:0;background:#1C3152">
+        <div>
+          <div class="price-label">Индивидуально</div>
+          <div class="price-val">${c.priceIndividual}</div>
+          <div class="price-time">${c.duration}</div>
+        </div>
+      </div>
+      ${c.priceGroup ? `<div class="price-block" style="flex:1;margin-bottom:0;background:#2D5187">
+        <div>
+          <div class="price-label">Группа 4–5 чел.</div>
+          <div class="price-val">${c.priceGroup}</div>
+          <div class="price-time">${c.duration}</div>
+        </div>
+      </div>` : ''}
+    </div>
+    <div class="panel-divider"></div>
+    <div class="panel-section-label">💬 Возражения родителей</div>
+    <div class="obj-list">${c.objections.map((o,i)=>`
+      <div class="obj-item">
+        <div class="obj-q" onclick="toggleObj(this)">
+          <span>«${o.q}»</span>
+          <span class="obj-q-icon">›</span>
+        </div>
+        <div class="obj-a">
+          ${o.a}
+          <br><button class="obj-copy" onclick="copyArg(this,'${o.a.replace(/'/g,"\\'")}')">📋 Скопировать ответ</button>
+        </div>
+      </div>`).join('')}</div>
+    <button class="cta-btn">Подобрать преподавателя →</button>`;
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('panelBackdrop').classList.add('show');
+  buildGrid();
+}
+
+function toggleObj(el) {
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('visible');
+}
+
+function copyArg(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Скопировано'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Скопировать ответ'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('panelBackdrop').classList.remove('show');
+  activeId = null; buildGrid();
+}
+document.getElementById('panelClose').addEventListener('click', closePanel);
+document.getElementById('panelBackdrop').addEventListener('click', closePanel);
+
+// ── FILTERS ──
+document.querySelectorAll('[data-age]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-age]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); ageFilter = btn.dataset.age; buildGrid();
+  });
+});
+document.querySelectorAll('[data-format]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-format]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); formatFilter = btn.dataset.format; buildGrid();
+  });
+});
+
+// ── FAVORITES ──
+function toggleFav(id) {
+  if (favorites.includes(id)) favorites = favorites.filter(x=>x!==id);
+  else favorites.push(id);
+  localStorage.setItem('matrius_favs', JSON.stringify(favorites));
+  if (favFilter && !favorites.includes(id)) { if (activeId===id) document.getElementById('panel').classList.remove('open'); }
+  buildGrid();
+}
+
+
+// ── COMPARE ──
+function toggleCompare(id) {
+  if (compareList.includes(id)) {
+    compareList = compareList.filter(x=>x!==id);
+  } else {
+    if (compareList.length >= 3) { alert('Можно сравнить не более 3 курсов'); return; }
+    compareList.push(id);
+  }
+  updateCompareBar(); buildGrid();
+}
+
+function updateCompareBar() {
+  const bar = document.getElementById('compareBar');
+  const items = document.getElementById('compareItems');
+  const btn = document.getElementById('doCompare');
+  if (!compareList.length) { bar.classList.remove('show'); return; }
+  bar.classList.add('show');
+  btn.disabled = compareList.length < 2;
+
+  const selected = compareList.map(id => courses.find(c=>c.id===id));
+  const placeholders = 3 - compareList.length;
+  items.innerHTML = selected.map(c=>`
+    <div class="compare-item">
+      ${c.icon} ${c.name}
+      <button class="compare-item-remove" onclick="toggleCompare(${c.id})">✕</button>
+    </div>`).join('') +
+    Array(placeholders).fill(`<div class="compare-placeholder">+ Добавить</div>`).join('');
+}
+
+document.getElementById('clearCompare').addEventListener('click', () => {
+  compareList = []; updateCompareBar(); buildGrid();
+});
+
+document.getElementById('doCompare').addEventListener('click', () => {
+  const selected = compareList.map(id => courses.find(c=>c.id===id));
+  const rows = [
+    ['', ...selected.map(c=>`<span class="icon-cell">${c.icon}</span><br><strong>${c.name}</strong>`)],
+    ['Возраст', ...selected.map(c=>c.age)],
+    ['Стоимость', ...selected.map(c=>c.price)],
+    ['Формат', ...selected.map(c=>c.formats.join(', '))],
+    ['Занятий', ...selected.map(c=>c.duration)],
+    ['Результат', ...selected.map(c=>c.resultTime)],
+    ['Популярность', ...selected.map(c=>`<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:#E2E6EE;border-radius:4px"><div style="width:${c.popularity}%;height:100%;background:${c.color};border-radius:4px"></div></div>${c.popularity}%</div>`)],
+  ];
+  document.getElementById('compareTableWrap').innerHTML = `
+    <table class="compare-table">
+      ${rows.map((row,i)=>`<tr>${row.map((cell,j)=>i===0&&j===0?`<th></th>`:i===0?`<th>${cell}</th>`:`<td>${cell}</td>`).join('')}</tr>`).join('')}
+    </table>`;
+  document.getElementById('compareModal').classList.add('show');
+});
+
+document.getElementById('closeCompareModal').addEventListener('click', () => {
+  document.getElementById('compareModal').classList.remove('show');
+});
+document.getElementById('compareModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('show');
+});
+
+// ── QUIZ ──
+function renderQuiz() {
+  const content = document.getElementById('quizContent');
+  if (quizStep < quizSteps.length) {
+    const step = quizSteps[quizStep];
+    const selected = quizAnswers[quizStep];
+    content.innerHTML = `
+      <div class="quiz-progress">${quizSteps.map((_,i)=>`<div class="quiz-step-dot ${i<quizStep?'done':''}"></div>`).join('')}</div>
+      <div class="quiz-q-num">Вопрос ${quizStep+1} из ${quizSteps.length}</div>
+      <div class="quiz-q-text">${step.q}</div>
+      <div class="quiz-options">
+        ${step.opts.map(o=>`
+          <button class="quiz-opt ${selected===o.v?'selected':''}" onclick="selectQuizOpt('${o.v}')">
+            <span class="quiz-opt-emoji">${o.e}</span>${o.t}
+          </button>`).join('')}
+      </div>
+      <div class="quiz-nav">
+        <button class="quiz-back" onclick="quizBack()" ${quizStep===0?'style="visibility:hidden"':''}>← Назад</button>
+        <button class="quiz-next" onclick="quizNext()" ${!selected?'disabled':''}>
+          ${quizStep===quizSteps.length-1?'Показать результат →':'Далее →'}
+        </button>
+      </div>`;
+  } else {
+    showQuizResult(content);
+  }
+}
+
+function selectQuizOpt(v) {
+  quizAnswers[quizStep] = v;
+  renderQuiz();
+}
+function quizNext() { if (quizAnswers[quizStep]) { quizStep++; renderQuiz(); } }
+function quizBack() { if (quizStep > 0) { quizStep--; renderQuiz(); } }
+
+function showQuizResult(content) {
+  const age = quizAnswers[0]; const goal = quizAnswers[1]; const fmt = quizAnswers[2];
+  const [ageMin, ageMax] = age.split('-').map(Number);
+
+  let scored = courses.map(c => {
+    let score = 0;
+    if (c.ageMin <= ageMax && c.ageMax >= ageMin) score += 3;
+    if (c.quizGoals.includes(goal)) score += 2;
+    if (fmt === 'individual' || fmt === 'any') score += 1;
+    if (fmt === 'group' && c.hasGroup) score += 1;
+    return { ...c, score };
+  }).filter(c => c.score >= 3).sort((a,b) => b.score - a.score).slice(0, 3);
+
+  if (!scored.length) scored = courses.slice(0, 2);
+
+  content.innerHTML = `
+    <div class="quiz-result">
+      <span class="quiz-result-icon">🎯</span>
+      <div class="quiz-result-title">Подходящие курсы для вашего ребёнка:</div>
+      <div class="quiz-result-cards">
+        ${scored.map(c=>`
+          <div class="quiz-result-card" onclick="openFromQuiz(${c.id})">
+            <span class="quiz-result-card-icon">${c.icon}</span>
+            <div class="quiz-result-card-name">${c.name}</div>
+            <div class="quiz-result-card-age">${c.age}</div>
+          </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="quiz-restart" onclick="restartQuiz()">↺ Пройти заново</button>
+        <button class="quiz-open-btn" onclick="openFromQuiz(${scored[0].id})">Открыть ${scored[0].name} →</button>
+      </div>
+    </div>`;
+}
+
+function openFromQuiz(id) {
+  document.getElementById('quizModal').classList.remove('show');
+  const c = courses.find(x=>x.id===id);
+  openPanel(c);
+}
+
+function restartQuiz() { quizStep = 0; quizAnswers = []; renderQuiz(); }
+
+document.getElementById('closeQuiz').addEventListener('click', () => {
+  document.getElementById('quizModal').classList.remove('show');
+});
+document.getElementById('quizModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('show');
+});
+
+// ── VIEW SWITCHING ──
+let currentView = 'map';
+
+function switchView(v) {
+  currentView = v;
+  document.getElementById('viewMapBtn').classList.toggle('active', v === 'map');
+  document.getElementById('viewPricesBtn').classList.toggle('active', v === 'prices');
+  document.querySelector('.grid-area').classList.toggle('hidden', v !== 'map');
+  document.getElementById('pricesView').classList.toggle('hidden', v !== 'prices');
+  if (v === 'prices') renderPricesView();
+}
+
+function renderPricesView() {
+  const periods = ['3 мес','6 мес','9 мес','12 мес'];
+  const keys = ['m3','m6','m9','m12'];
+  document.getElementById('pricesAccordion').innerHTML = courses.map(c => {
+    const inclPills = c.includes.map(inc => `<span class="pa-include-pill">${inc}</span>`).join('');
+    // header row
+    let gridHTML = `<div class="pa-cell pa-cell-corner"></div>`;
+    periods.forEach(p => { gridHTML += `<div class="pa-cell pa-cell-head">${p}</div>`; });
+    // individual row
+    gridHTML += `<div class="pa-cell pa-cell-label">Индивидуально</div>`;
+    keys.forEach(k => {
+      const v = c.subs.individual[k];
+      gridHTML += `<div class="pa-cell pa-cell-val ${v?'':'empty'}">${v||'—'}</div>`;
+    });
+    // group row
+    if (c.subs.group) {
+      gridHTML += `<div class="pa-cell pa-cell-label">Группа 4–5 чел.</div>`;
+      keys.forEach(k => {
+        const v = c.subs.group[k];
+        gridHTML += `<div class="pa-cell pa-cell-val ${v?'':'empty'}">${v||'—'}</div>`;
+      });
+    }
+    const monthlyHTML = `<div class="pa-monthly">
+      <div class="price-block" style="flex:1;margin-bottom:0;background:#1C3152;padding:10px 14px">
+        <div class="price-label">Индивидуально / мес</div>
+        <div class="price-val" style="font-size:15px">${c.priceIndividual}</div>
+      </div>
+      ${c.priceGroup ? `<div class="price-block" style="flex:1;margin-bottom:0;background:#2D5187;padding:10px 14px">
+        <div class="price-label">Группа / мес</div>
+        <div class="price-val" style="font-size:15px">${c.priceGroup}</div>
+      </div>` : ''}
+    </div>`;
+    return `<div class="pa-item" id="pa-${c.id}">
+      <div class="pa-head" onclick="togglePriceAccordion(${c.id})">
+        <span class="pa-icon">${c.icon}</span>
+        <div class="pa-info">
+          <div class="pa-name">${c.name}</div>
+          <div class="pa-age">${c.age}</div>
+        </div>
+        <span class="pa-price-hint">${c.priceIndividual}</span>
+        <span class="pa-arrow">›</span>
+      </div>
+      <div class="pa-body">
+        <div class="pa-section-label">Что входит в стоимость</div>
+        <div class="pa-includes-list">${inclPills}</div>
+        <div class="pa-section-label">Абонементы</div>
+        <div class="pa-prices-grid">${gridHTML}</div>
+        ${monthlyHTML}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togglePriceAccordion(id) {
+  document.getElementById('pa-' + id).classList.toggle('open');
+}
+
+// ── INIT ──
+buildGrid();
+
+// ── PRICE CARD GENERATOR ──
+let pcLogoDataUrl = null;
+async function loadPcLogo() {
+  if (pcLogoDataUrl) return;
+  try {
+    const resp = await fetch('assets/logo-matrius.png');
+    const blob = await resp.blob();
+    pcLogoDataUrl = await new Promise(r => {
+      const reader = new FileReader();
+      reader.onload = () => r(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  } catch(e) { pcLogoDataUrl = ''; }
+}
+
+const pcState = {
+  bgColor: '#3D6094',
+  title: 'СТОИМОСТЬ АБОНЕМЕНТОВ',
+  typeName: 'Групповой абонемент',
+  cards: [
+    { orange: true,  period: '3 месяца',   info: '12 недель / 24 урока',   lessonPrice: '', price: '35 820', monthlyPrice: '' },
+    { orange: false, period: '6 месяцев',  info: '24 недели / 48 уроков',  lessonPrice: '', price: '54 680', monthlyPrice: '' },
+    { orange: true,  period: '9 месяцев',  info: '36 недель / 72 урока',   lessonPrice: '', price: '73 900', monthlyPrice: '' },
+    { orange: false, period: '12 месяцев', info: '48 недель / 96 уроков',  lessonPrice: '', price: '86 280', monthlyPrice: '' },
+  ]
+};
+
+function renderPcForm() {
+  const container = document.getElementById('pcCardsForm');
+  container.innerHTML = pcState.cards.map((c, i) => `
+    <div class="pf-card-block">
+      <div class="pf-card-head">
+        <span class="pf-card-num">Карточка ${i + 1}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="pf-toggle">
+            <button class="pf-toggle-btn ${c.orange ? 'active' : ''}" onclick="pcSetColor(${i},true)">Оранжевая</button>
+            <button class="pf-toggle-btn ${!c.orange ? 'active' : ''}" onclick="pcSetColor(${i},false)">Тёмная</button>
+          </div>
+          ${pcState.cards.length > 1 ? `<button class="pf-del-btn" onclick="pcDeleteCard(${i})" title="Удалить">✕</button>` : ''}
+        </div>
+      </div>
+      <div class="pf-card-inputs">
+        <input type="text" class="pf-input" value="${c.period}" placeholder="Период" oninput="pcUpdateCard(${i},'period',this.value)">
+        <input type="text" class="pf-input" value="${c.info}" placeholder="Недели / Уроки" oninput="pcUpdateCard(${i},'info',this.value)">
+        <div class="pf-price-row">
+          <input type="text" class="pf-input" value="${c.lessonPrice}" placeholder="Цена за 1 урок" oninput="pcUpdateCard(${i},'lessonPrice',this.value)">
+          <span class="pf-rub">₽</span>
+        </div>
+        <div class="pf-price-row">
+          <input type="text" class="pf-input" value="${c.price}" placeholder="Цена абонемента" oninput="pcUpdateCard(${i},'price',this.value)">
+          <span class="pf-rub">₽</span>
+        </div>
+        <div class="pf-price-row">
+          <input type="text" class="pf-input" value="${c.monthlyPrice}" placeholder="Цена за месяц" oninput="pcUpdateCard(${i},'monthlyPrice',this.value)">
+          <span class="pf-rub">₽/мес</span>
+        </div>
+      </div>
+    </div>`).join('') +
+    (pcState.cards.length < 4 ? `<button class="pf-add-btn" onclick="pcAddCard()">+ Добавить карточку</button>` : '');
+}
+
+function pcUpdateCard(idx, field, value) {
+  pcState.cards[idx][field] = value;
+  pcRender();
+}
+
+function pcDeleteCard(idx) {
+  pcState.cards.splice(idx, 1);
+  renderPcForm();
+  pcRender();
+}
+
+function pcAddCard() {
+  pcState.cards.push({ orange: true, period: '', info: '', lessonPrice: '', price: '', monthlyPrice: '' });
+  renderPcForm();
+  pcRender();
+}
+
+function pcRender() {
+  const s = pcState;
+  const n = s.cards.length;
+  const headerOrange = '#EE6435';
+  const headerDark = '#1C3152';
+  const cardMaxW = n < 4 ? `max-width:430px;` : '';
+  const justify  = n < 4 ? 'center' : 'flex-start';
+
+  const cardsHTML = s.cards.map((c) => {
+    const hdrBg = c.orange ? headerOrange : headerDark;
+    return `
+      <div style="flex:1;${cardMaxW}border-radius:20px;overflow:hidden;display:flex;flex-direction:column;min-height:0">
+        <div style="background:${hdrBg};padding:30px 20px;text-align:center;flex-shrink:0">
+          <div style="font-family:'Onest',sans-serif;font-size:40px;font-weight:500;color:white;line-height:1.1">${c.period}</div>
+        </div>
+        <div style="background:#EBF0F8;padding:0 24px;text-align:center;flex:1;display:flex;align-items:center;justify-content:center">
+          <div style="font-family:'Onest',sans-serif;font-size:24px;color:#3D4F6A;font-weight:400;line-height:1.4">${c.info}</div>
+        </div>
+        <div style="background:#FFFFFF;padding:0 24px;text-align:center;flex:2;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          ${c.lessonPrice ? `
+          <div style="padding:22px 0;width:100%">
+            <div style="font-family:'Onest',sans-serif;font-size:22px;color:#3D4F6A;font-weight:400;margin-bottom:8px">Цена за 1 урок</div>
+            <div style="font-family:'Onest',sans-serif;font-size:44px;font-weight:700;color:#EE6435;line-height:1">${c.lessonPrice} ₽</div>
+          </div>
+          <div style="width:85%;height:1px;background:#EBF0F8"></div>` : ''}
+          <div style="padding:22px 0;width:100%">
+            <div style="font-family:'Onest',sans-serif;font-size:22px;color:#3D4F6A;font-weight:400;margin-bottom:8px">Цена абонемента</div>
+            <div style="font-family:'Onest',sans-serif;font-size:${c.lessonPrice ? '48' : '64'}px;font-weight:700;color:#EE6435;line-height:1">${c.price} ₽</div>
+          </div>
+          ${c.monthlyPrice ? `
+          <div style="width:85%;height:1px;background:#EBF0F8"></div>
+          <div style="padding:22px 0;width:100%">
+            <div style="font-family:'Onest',sans-serif;font-size:30px;font-weight:700;color:#EE6435">${c.monthlyPrice} ₽ / месяц</div>
+          </div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('priceCardFull').innerHTML = `
+    <div style="width:1920px;height:1080px;background:${s.bgColor};display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Onest',sans-serif;padding:0 100px;box-sizing:border-box">
+      ${pcLogoDataUrl ? `<img src="${pcLogoDataUrl}" style="width:140px;height:140px;object-fit:contain;margin-bottom:52px;border-radius:50%;">` : ''}
+      <div style="background:#EE6435;border-radius:14px;padding:14px 36px;margin-bottom:24px;display:inline-block">
+        <div style="font-family:'Onest',sans-serif;font-size:58px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:-0.02em;line-height:1;white-space:nowrap">${s.title}</div>
+      </div>
+      <div style="font-family:'Onest',sans-serif;font-size:42px;color:white;font-weight:400;margin-bottom:48px">${s.typeName}</div>
+      <div style="display:flex;gap:24px;justify-content:${justify};width:100%;max-width:1720px;height:500px">
+        ${cardsHTML}
+      </div>
+    </div>`;
+}
+
+function pcSetColor(idx, orange) {
+  pcState.cards[idx].orange = orange;
+  renderPcForm();
+  pcRender();
+}
+
+// Live update on any input change inside the modal
+document.getElementById('priceCardModal').addEventListener('input', e => {
+  if (e.target.id === 'pcBgColor') pcState.bgColor = e.target.value;
+  if (e.target.id === 'pcTitle') pcState.title = e.target.value;
+  if (e.target.id === 'pcTypeName') pcState.typeName = e.target.value;
+  pcRender();
+});
+
+async function exportPriceCard() {
+  const btn = document.getElementById('exportPriceBtn');
+  btn.disabled = true; btn.textContent = 'Генерирую…';
+  await document.fonts.ready;
+
+  const src = document.getElementById('priceCardFull').firstElementChild;
+  if (!src) { btn.disabled = false; btn.textContent = '↓ Скачать PNG (1920×1080)'; return; }
+
+  const clone = src.cloneNode(true);
+  // Позиционируем в viewport — cssText не трогаем, иначе сотрётся background и др. инлайн-стили
+  clone.style.position = 'fixed';
+  clone.style.top = '0';
+  clone.style.left = '0';
+  clone.style.width = '1920px';
+  clone.style.height = '1080px';
+  clone.style.transform = 'none';
+  clone.style.zIndex = '999999';
+  clone.style.pointerEvents = 'none';
+  // opacity не трогаем — модалка закрывает клон визуально
+  document.body.appendChild(clone);
+
+  // Небольшая пауза — дать браузеру отрендерить клон
+  await new Promise(r => setTimeout(r, 80));
+
+  try {
+    const canvas = await html2canvas(clone, {
+      width: 1920, height: 1080, scale: 1,
+      useCORS: true, logging: false,
+      x: 0, y: 0, scrollX: 0, scrollY: 0
+    });
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.download = 'price-card.png';
+      a.href = url; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }, 'image/png');
+  } finally {
+    document.body.removeChild(clone);
+    btn.disabled = false; btn.textContent = '↓ Скачать PNG (1920×1080)';
+  }
+}
+
+document.getElementById('priceCardBtn').addEventListener('click', async () => {
+  document.getElementById('priceCardModal').classList.add('show');
+  await loadPcLogo();
+  renderPcForm();
+  pcRender();
+});
+document.getElementById('closePriceModal').addEventListener('click', () => {
+  document.getElementById('priceCardModal').classList.remove('show');
+});
+document.getElementById('priceCardModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('show');
+});
+document.getElementById('exportPriceBtn').addEventListener('click', exportPriceCard);
+
+
+// ── SCRIPT ──
+function toggleScript(head) {
+  head.classList.toggle('open');
+  head.nextElementSibling.classList.toggle('open');
+}
+
+// ── MATERIALS ──
+const materials = [
+  { section: 'Основное' },
+  { icon: '🌐', name: 'Сайт Matrius', desc: 'Главная страница школы со всеми направлениями', url: 'https://matrius.online/?utm_source=organic&utm_medium=sr' },
+  { icon: '📝', name: 'Запись и оплата', desc: 'Страница для записи на курс и выбора тарифа', url: 'https://matrius.online' },
+  { divider: true },
+  { section: 'Доверие' },
+  { icon: '⭐', name: 'Отзывы', desc: 'Отзывы родителей и учеников о результатах', url: 'https://otzovik.com/reviews/matrius_ru-onlayn-shkola_dopolnitelnogo_obrazovaniya/' },
+  { icon: '📄', name: 'Лицензия', desc: 'Образовательная лицензия и документы школы', url: 'https://matrius.online' },
+  { divider: true },
+  { section: 'Соцсети' },
+  { icon: '✈️', name: 'Telegram-канал', desc: 'Полезные материалы, советы для родителей', url: 'https://t.me/matrius_ru' },
+  { icon: '💙', name: 'ВКонтакте', desc: 'Жизнь школы, результаты учеников', url: 'https://vk.com/matrius_ru' },
+];
+
+function renderMaterials() {
+  const grid = document.getElementById('matGrid');
+  grid.innerHTML = materials.map(m => {
+    if (m.section) return `<div class="mat-section-title">${m.section}</div>`;
+    if (m.divider) return `<div class="mat-divider"></div>`;
+    return `<div class="mat-card">
+      <div class="mat-card-top">
+        <span class="mat-card-icon">${m.icon}</span>
+        <span class="mat-card-name">${m.name}</span>
+      </div>
+      <div class="mat-card-desc">${m.desc}</div>
+      <button class="mat-copy-btn" onclick="matCopy(this,'${m.url}')">📋 Скопировать ссылку</button>
+    </div>`;
+  }).join('');
+}
+
+function matCopy(btn, url) {
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = '✓ Скопировано';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = '📋 Скопировать ссылку'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+document.getElementById('materialsBtn').addEventListener('click', () => {
+  renderMaterials();
+  document.getElementById('materialsModal').classList.add('show');
+});
+document.getElementById('closeMaterialsModal').addEventListener('click', () => document.getElementById('materialsModal').classList.remove('show'));
+document.getElementById('materialsModal').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+
+document.getElementById('scriptBtn').addEventListener('click', () => document.getElementById('scriptModal').classList.add('show'));
+document.getElementById('closeScriptModal').addEventListener('click', () => document.getElementById('scriptModal').classList.remove('show'));
+document.getElementById('scriptModal').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+
+const presentations = [
+  { id:1, icon:'🧮', name:'Ментальная арифметика', url:'https://docs.google.com/presentation/d/1orQu7ehc0cUhn95OArUIgPjFq3mLAcrVrxrOLjvm2yI/edit?usp=drive_link' },
+  { id:2, icon:'📖', name:'Скорочтение',            url:'https://docs.google.com/presentation/d/1etPzRM6z6tteo3Q8k1NBbzIOtQ8psrnFjYqWFwGGxM8/edit?usp=drive_link' },
+  { id:3, icon:'📐', name:'Математика',             url:'https://docs.google.com/presentation/d/1r_odEt9MhpdrbIMfpyZDUZwVQhKy2C555ZHT8dTu9NU/edit?usp=drive_link' },
+  { id:4, icon:'🗣️', name:'Логопедия',              url:'https://docs.google.com/presentation/d/1xedtAU6JSFaENk7l-qW_hnTO2C_FnnMwe0O5mfD3rao/edit?usp=drive_link' },
+  { id:5, icon:'🎒', name:'Подготовка к школе',     url:'https://drive.google.com/drive/folders/1S236fXwyffzIk-XlTB0yU35JN2U2tVgK?usp=drive_link' },
+  { id:6, icon:'📝', name:'Русский язык',           url:'https://drive.google.com/drive/folders/1f2LkeskFZ2fqTS8NQaQPI4WEsQr4Su8x?usp=drive_link' },
+  { id:7, icon:'🇬🇧', name:'Английский язык',       url:'https://drive.google.com/drive/folders/1Sbgi74EJhZ9LQaaCMWzq5-DKUZl4WRFp?usp=drive_link' },
+  { id:8, icon:'💻', name:'IT для детей',           url:'' },
+];
+
+function renderPresentations() {
+  document.getElementById('presGrid').innerHTML = presentations.map(p => `
+    <div class="mat-card">
+      <div class="mat-card-left">
+        <div class="mat-icon">${p.icon}</div>
+        <div class="mat-info">
+          <div class="mat-name" style="font-size:16px;font-weight:700;color:var(--text)">${p.name}</div>
+          ${!p.url ? `<div class="mat-desc" style="font-size:11px;color:var(--muted);margin-top:2px">Ссылка не добавлена</div>` : ''}
+        </div>
+      </div>
+      <div class="mat-actions">
+        ${p.url ? `<a class="mat-copy-btn" href="${p.url}" target="_blank" rel="noopener" style="text-decoration:none;text-align:center;background:#EE6435;color:#fff;border-color:#EE6435">🔗 Открыть</a>` : ''}
+        ${p.url ? `<button class="mat-copy-btn" onclick="presCopy(this,'${p.url}')">📋 Скопировать</button>` : `<button class="mat-copy-btn" disabled style="opacity:0.4;cursor:default">📋 Скопировать</button>`}
+      </div>
+    </div>`).join('');
+}
+
+function presCopy(btn, url) {
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = '✓ Скопировано';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = '📋 Скопировать'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+document.getElementById('presentationsBtn').addEventListener('click', () => {
+  renderPresentations();
+  document.getElementById('presentationsModal').classList.add('show');
+});
+document.getElementById('closePresentationsModal').addEventListener('click', () => document.getElementById('presentationsModal').classList.remove('show'));
+document.getElementById('presentationsModal').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+
+// ── SIDE MENU ──
+function openSideMenu() {
+  document.getElementById('sideMenu').classList.add('open');
+  document.getElementById('sideOverlay').classList.add('open');
+}
+function closeSideMenu() {
+  document.getElementById('sideMenu').classList.remove('open');
+  document.getElementById('sideOverlay').classList.remove('open');
+}
+document.getElementById('hamburgerBtn').addEventListener('click', openSideMenu);
+document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
+document.getElementById('sideOverlay').addEventListener('click', closeSideMenu);
+
+document.getElementById('smPriceCard').addEventListener('click', () => { closeSideMenu(); document.getElementById('priceCardBtn').click(); });
+document.getElementById('smPresentations').addEventListener('click', () => { closeSideMenu(); document.getElementById('presentationsBtn').click(); });
+document.getElementById('smMaterials').addEventListener('click', () => { closeSideMenu(); document.getElementById('materialsBtn').click(); });
+document.getElementById('smScript').addEventListener('click', () => { closeSideMenu(); document.getElementById('scriptBtn').click(); });
+</script>
+</body>
+</html>

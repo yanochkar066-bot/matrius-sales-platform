@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Полезные привычки — MATRIUS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Onest', sans-serif;
+  background: #C8CDD6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 28px;
+}
+
+/* ── A4 ── */
+.page {
+  width: 794px;
+  height: 1123px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════
+   COVER
+═══════════════════════ */
+.page-cover {
+  background-color: #1C3152;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 30px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 128px 52px 0;
+}
+
+.cover-logo-wrap { position: absolute; top: 48px; left: 52px; z-index: 5; }
+.cover-logo-img  { width: 72px; height: 72px; object-fit: contain; border-radius: 50%; display: block; }
+
+.cover-center {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  position: relative; z-index: 2; width: 100%;
+}
+
+.cover-h1 {
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  color: #fff;
+  text-align: center;
+}
+.cover-h1 .line-w  { display: block; font-size: 112px; }
+.cover-h1 .line-o  { display: block; font-size: 112px; color: #EE6435; margin-top: 6px; }
+
+.cover-rule { width: 80px; height: 3px; background: #EE6435; border-radius: 2px; margin: 28px auto 22px; }
+.cover-sub  {
+  font-family: 'Caveat', cursive;
+  font-size: 28px; font-style: italic;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.35; text-align: center;
+}
+
+.cover-photo-wrap {
+  width: 100%; margin-top: 32px;
+  border-radius: 20px; overflow: hidden;
+  height: 350px; flex-shrink: 0;
+}
+.cover-photo { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; }
+
+.cover-footer {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 56px;
+  background: rgba(238,100,53,0.12);
+  border-top: 1px solid rgba(238,100,53,0.25);
+  display: flex; align-items: center; justify-content: center;
+  gap: 20px; z-index: 5;
+}
+.cft { font-family: 'Onest', sans-serif; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.4); letter-spacing: 1.5px; text-transform: uppercase; }
+.cfd { width: 3px; height: 3px; border-radius: 50%; background: rgba(238,100,53,0.5); }
+
+/* ═══════════════════════
+   INNER PAGES
+═══════════════════════ */
+.page-inner { background: #F7F8FA; display: flex; flex-direction: column; }
+
+.p-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 26px 44px 14px; background: #fff;
+}
+.p-logo { display: flex; align-items: center; gap: 10px; }
+.p-logo img { width: 38px; height: 38px; object-fit: contain; }
+.p-logo-name { font-family: 'Onest', sans-serif; font-weight: 700; font-size: 13px; color: #1C3152; letter-spacing: 2.5px; }
+.p-age { font-family: 'Onest', sans-serif; font-weight: 700; font-size: 26px; color: #EE6435; line-height: 1; }
+
+.p-div { height: 1px; background: #E2E6EE; margin: 0 44px; }
+
+.p-body { flex: 1; padding: 22px 44px 34px; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Заголовок страницы */
+.page-title {
+  font-family: 'Onest', sans-serif;
+  font-weight: 700; font-size: 22px;
+  color: #1C3152; line-height: 1.25;
+  margin-bottom: 4px;
+}
+.page-caveat {
+  font-family: 'Caveat', cursive;
+  font-size: 24px; color: #EE6435;
+  font-style: italic; display: block;
+  margin-bottom: 16px;
+}
+
+/* Вводный блок */
+.intro-box {
+  background: #fff;
+  border-radius: 16px;
+  border: 1.5px solid #E2E6EE;
+  padding: 16px 20px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #4A5568;
+  margin-bottom: 16px;
+}
+.intro-box strong { color: #1C3152; }
+
+/* Синяя карточка привычки */
+.habit-card {
+  background: #3D6494;
+  border-radius: 18px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  position: relative;
+}
+.habit-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: rgba(255,255,255,0.18);
+}
+
+.hc-top {
+  padding: 16px 20px 14px;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+
+.hc-num {
+  width: 32px; height: 32px; min-width: 32px;
+  background: #EE6435; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Onest', sans-serif; font-weight: 700;
+  font-size: 15px; color: #fff; flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.hc-text { flex: 1; }
+.hc-title { font-family: 'Onest', sans-serif; font-weight: 700; font-size: 15px; color: #fff; line-height: 1.3; margin-bottom: 5px; }
+.hc-desc  { font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.8); }
+
+/* Секция внутри карточки */
+.hc-section {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 10px 20px 14px 66px;
+}
+.hc-section-label {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 1.5px; color: rgba(255,255,255,0.45);
+  margin-bottom: 4px; font-weight: 500;
+}
+.hc-section-val { font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.5; }
+
+/* Светлая карточка */
+.card-light {
+  background: #fff; border-radius: 18px;
+  border: 1.5px solid #E2E6EE;
+  padding: 16px 20px; margin-bottom: 10px;
+}
+.cl-title { font-family: 'Onest', sans-serif; font-weight: 700; font-size: 14px; color: #1C3152; margin-bottom: 6px; }
+.cl-body  { font-size: 13px; line-height: 1.65; color: #4A5568; }
+
+/* Оранжевая подсказка */
+.tip {
+  background: #FFF5F1; border-left: 3px solid #EE6435;
+  border-radius: 0 12px 12px 0;
+  padding: 12px 16px; margin-bottom: 10px;
+}
+.tip-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #EE6435; font-weight: 700; margin-bottom: 4px; }
+.tip-body  { font-size: 13px; line-height: 1.6; color: #4A5568; }
+
+/* Двух-колоночная сетка */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+
+/* Разрыв между блоками */
+.gap   { height: 16px; }
+.gap-s { height: 8px; }
+
+/* ── Схема Помодоро ── */
+.pomodoro {
+  background: #3D6494; border-radius: 18px;
+  padding: 16px 20px; margin-bottom: 10px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.pomodoro-title { font-weight: 700; font-size: 15px; color: #fff; }
+.pomodoro-row   { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pod { height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 10px; white-space: nowrap; }
+.pod-work  { background: #EE6435; color: #fff; }
+.pod-rest  { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
+.pod-long  { background: rgba(150,187,239,0.3); color: #fff; }
+.pod-arrow { color: rgba(255,255,255,0.4); font-size: 14px; }
+.pomodoro-note { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+
+/* ── Трекер ── */
+.tracker {
+  background: #fff; border-radius: 18px;
+  border: 1.5px solid #E2E6EE;
+  overflow: hidden; margin-bottom: 10px;
+}
+.tracker-head {
+  background: #1C3152; padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.tracker-head-title { font-weight: 700; font-size: 14px; color: #fff; }
+.tracker-grid {
+  display: grid;
+  grid-template-columns: 140px repeat(7, 1fr);
+  font-size: 11px;
+}
+.tg-cell {
+  padding: 7px 6px; border-right: 1px solid #F0F0F0;
+  border-bottom: 1px solid #F0F0F0;
+  text-align: center; color: #4A5568;
+  display: flex; align-items: center; justify-content: center;
+}
+.tg-cell.label { justify-content: flex-start; padding-left: 12px; color: #1C3152; font-weight: 500; font-size: 11.5px; }
+.tg-cell.head  { background: #F7F8FA; font-weight: 700; color: #1C3152; font-size: 11px; }
+.tg-cell.check { color: #C5D0DC; font-size: 16px; }
+.tg-cell.sat, .tg-cell.sun { background: #FFF5F1; }
+
+/* ── Важный момент — последствия ── */
+.consequence {
+  background: #fff; border-radius: 16px;
+  border: 1.5px solid #E2E6EE;
+  padding: 0; overflow: hidden; margin-bottom: 8px;
+}
+.cons-head {
+  background: #1C3152; padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.cons-letter {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #EE6435; display: flex; align-items: center;
+  justify-content: center; font-weight: 700; font-size: 14px; color: #fff;
+}
+.cons-title { font-weight: 700; font-size: 13.5px; color: #fff; }
+.cons-body  { padding: 12px 16px; font-size: 13px; line-height: 1.6; color: #4A5568; }
+.cons-result {
+  background: #FFF5F1; padding: 10px 16px;
+  font-size: 12.5px; line-height: 1.55; color: #CC4A1A;
+  border-top: 1px solid #FFD5C4;
+}
+.cons-result strong { font-weight: 700; }
+
+/* Заключительная страница */
+.page-end { background: #1C3152; }
+.end-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 30px 30px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; padding: 60px 64px;
+  text-align: center;
+}
+.end-title {
+  font-family: 'Onest', sans-serif; font-weight: 700;
+  font-size: 44px; line-height: 1.1;
+  color: #fff; letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+.end-title .em { color: #EE6435; }
+.end-rule { width: 80px; height: 3px; background: #EE6435; border-radius: 2px; margin: 0 auto 28px; }
+.end-caveat {
+  font-family: 'Caveat', cursive; font-size: 48px;
+  font-style: italic; color: rgba(255,255,255,0.8); margin-bottom: 40px;
+}
+.end-logo { width: 80px; height: 80px; object-fit: contain; border-radius: 50%; }
+
+/* Номер страницы */
+.pg { position: absolute; bottom: 22px; right: 40px; font-size: 12px; color: #B0BDCC; font-weight: 500; }
+
+/* hl */
+.hl { background: #EE6435; color: #fff; padding: 1px 7px; border-radius: 4px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ████ PAGE 1 — ОБЛОЖКА ████ -->
+<div class="page page-cover">
+  <div class="cover-logo-wrap">
+    <img src="assets/logo-circle.png" class="cover-logo-img" alt="MATRIUS">
+  </div>
+  <div class="cover-center">
+    <h1 class="cover-h1">
+      <span class="line-w">Полезные</span>
+      <span class="line-o">привычки</span>
+    </h1>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">9 способов помочь ребёнку<br>организовать день самостоятельно</p>
+    <div class="cover-photo-wrap">
+      <img src="assets/original_p01.png" class="cover-photo" alt="">
+    </div>
+  </div>
+  <div class="cover-footer">
+    <span class="cft">Matrius</span>
+    <div class="cfd"></div>
+    <span class="cft">matrius.online</span>
+    <div class="cfd"></div>
+    <span class="cft">Материалы для родителей</span>
+  </div>
+</div>
+
+
+<!-- ████ PAGE 2 — ВВЕДЕНИЕ + ПРИВЫЧКИ 1–2 ████ -->
+<div class="page page-inner">
+  <div class="p-header">
+    <div class="p-logo"><img src="assets/logo-circle.png" alt=""><span class="p-logo-name">MATRIUS</span></div>
+    <div class="p-age">5+</div>
+  </div>
+  <div class="p-div"></div>
+  <div class="p-body">
+
+    <div class="intro-box">
+      <strong>Уважаемые родители!</strong> Предлагаем варианты, как помочь ребёнку в организации дня — чтобы и успеть погулять, и поиграть, и выполнить домашние задания <strong>без постоянного участия родителей.</strong>
+    </div>
+
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">1</div>
+        <div class="hc-text">
+          <div class="hc-title">Поставить напоминания</div>
+          <div class="hc-desc">Настройте уведомление в телефоне родителя и ребёнка на конкретное время — с названием задания.</div>
+        </div>
+      </div>
+      <div class="hc-section">
+        <div class="hc-section-label">Пример</div>
+        <div class="hc-section-val">«Домашнее задание по ментальной арифметике / скорочтению / программированию» — в удобное время после школы.</div>
+      </div>
+    </div>
+
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">2</div>
+        <div class="hc-text">
+          <div class="hc-title">Расписание на неделю</div>
+          <div class="hc-desc">Ребёнок сам пишет расписание на листе А4: занятия в школе, кружки, домашние дела — с конкретным временем на выполнение ДЗ.</div>
+        </div>
+      </div>
+      <div class="hc-section">
+        <div class="hc-section-label">Важно</div>
+        <div class="hc-section-val">Прописывать подробно и по времени — тогда ребёнок понимает структуру своего дня и берёт за неё ответственность.</div>
+      </div>
+    </div>
+
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">3</div>
+        <div class="hc-text">
+          <div class="hc-title">Стикеры-напоминалки</div>
+          <div class="hc-desc">Ребёнок пишет на красивых стикерах напоминания про домашние задания и домашние дела — и клеит на рабочий стол.</div>
+        </div>
+      </div>
+      <div class="hc-section">
+        <div class="hc-section-label">Эффект</div>
+        <div class="hc-section-val">Визуальное напоминание работает без участия родителей — ребёнок сам видит и вспоминает.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="pg">1</div>
+</div>
+
+
+<!-- ████ PAGE 3 — ПРИВЫЧКИ 4–5 ████ -->
+<div class="page page-inner">
+  <div class="p-header">
+    <div class="p-logo"><img src="assets/logo-circle.png" alt=""><span class="p-logo-name">MATRIUS</span></div>
+    <div class="p-age">5+</div>
+  </div>
+  <div class="p-div"></div>
+  <div class="p-body">
+
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">4</div>
+        <div class="hc-text">
+          <div class="hc-title">Ассоциация с музыкой или предметом</div>
+          <div class="hc-desc">Придумайте вместе с ребёнком сигнал, который означает «пора делать задание». Это может быть конкретная мелодия, будильник или включение лампы.</div>
+        </div>
+      </div>
+      <div class="hc-section">
+        <div class="hc-section-label">Пример</div>
+        <div class="hc-section-val">Будильник «Учёба» звонит в 16:00 → ребёнок знает: сейчас время ментальной арифметики / скорочтения / программирования.</div>
+      </div>
+    </div>
+
+    <div class="gap-s"></div>
+
+    <!-- Помодоро -->
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">5</div>
+        <div class="hc-text">
+          <div class="hc-title">Техника Помодоро</div>
+          <div class="hc-desc">Установите приложение Pomofocus или любой таймер. Работа чередуется с отдыхом — это помогает сохранять концентрацию.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pomodoro">
+      <div class="pomodoro-title">Схема техники Помодоро</div>
+      <div class="pomodoro-row">
+        <div class="pod pod-work">🍅 25 мин работа</div>
+        <div class="pod-arrow">→</div>
+        <div class="pod pod-rest">5 мин отдых</div>
+        <div class="pod-arrow">→</div>
+        <div class="pod pod-work">🍅 25 мин работа</div>
+        <div class="pod-arrow">→</div>
+        <div class="pod pod-rest">5 мин отдых</div>
+        <div class="pod-arrow">→</div>
+        <div class="pod pod-work">🍅 25 мин работа</div>
+        <div class="pod-arrow">→</div>
+        <div class="pod pod-rest">5 мин отдых</div>
+        <div class="pod-arrow">→</div>
+        <div class="pod pod-work">🍅 25 мин работа</div>
+        <div class="pod-arrow">→</div>
+        <div class="pod pod-long">🌿 15–30 мин отдых</div>
+      </div>
+      <div class="pomodoro-note">После 4 помодоро — длинный перерыв. Приложения: Pomofocus, Forest, Be Focused.</div>
+    </div>
+
+    <div class="gap-s"></div>
+
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">6</div>
+        <div class="hc-text">
+          <div class="hc-title">Подготовка с вечера</div>
+          <div class="hc-desc">Ввести привычку готовиться к следующему дню накануне вечером — это освобождает утро от стресса и спешки.</div>
+        </div>
+      </div>
+      <div class="hc-section">
+        <div class="hc-section-label">Чек-лист на вечер</div>
+        <div class="hc-section-val">Собрать портфель · Приготовить форму · Почистить обувь · Сложить одежду на завтра</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="pg">2</div>
+</div>
+
+
+<!-- ████ PAGE 4 — ПРИВЫЧКИ 7–8 ████ -->
+<div class="page page-inner">
+  <div class="p-header">
+    <div class="p-logo"><img src="assets/logo-circle.png" alt=""><span class="p-logo-name">MATRIUS</span></div>
+    <div class="p-age">5+</div>
+  </div>
+  <div class="p-div"></div>
+  <div class="p-body">
+
+    <div class="habit-card" style="margin-bottom:12px;">
+      <div class="hc-top">
+        <div class="hc-num">7</div>
+        <div class="hc-text">
+          <div class="hc-title">Бумажный трекер привычек</div>
+          <div class="hc-desc">Трекер висит на видном месте. Ребёнок каждый день отмечает выполнение — и радуется росту своей «коллекции» галочек!</div>
+        </div>
+      </div>
+      <div class="hc-section">
+        <div class="hc-section-label">Мотивация</div>
+        <div class="hc-section-val">Если трекер без пропусков — маленькое вкусное вознаграждение в конце недели.</div>
+      </div>
+    </div>
+
+    <!-- Трекер -->
+    <div class="tracker">
+      <div class="tracker-head">
+        <div class="tracker-head-title">Трекер привычек — пример на неделю</div>
+      </div>
+      <div class="tracker-grid">
+        <div class="tg-cell head label">Привычка</div>
+        <div class="tg-cell head">Пн</div>
+        <div class="tg-cell head">Вт</div>
+        <div class="tg-cell head">Ср</div>
+        <div class="tg-cell head">Чт</div>
+        <div class="tg-cell head">Пт</div>
+        <div class="tg-cell head sat">Сб</div>
+        <div class="tg-cell head sun">Вс</div>
+
+        <div class="tg-cell label">Домашнее задание</div>
+        <div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div>
+        <div class="tg-cell check sat">○</div><div class="tg-cell check sun">○</div>
+
+        <div class="tg-cell label">Собрал портфель</div>
+        <div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div>
+        <div class="tg-cell check sat">○</div><div class="tg-cell check sun">—</div>
+
+        <div class="tg-cell label">Убрал за собой</div>
+        <div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div>
+        <div class="tg-cell check sat">○</div><div class="tg-cell check sun">○</div>
+
+        <div class="tg-cell label">Лёг спать вовремя</div>
+        <div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div><div class="tg-cell check">○</div>
+        <div class="tg-cell check sat">○</div><div class="tg-cell check sun">○</div>
+      </div>
+    </div>
+
+    <div class="gap"></div>
+
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">8</div>
+        <div class="hc-text">
+          <div class="hc-title">«Вишенка на торте» — маленькие цели</div>
+          <div class="hc-desc">После каждого выполненного задания — небольшая награда. Ребёнок учится завершать дела ради приятного результата.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card-light">
+        <div class="cl-title">Для младших</div>
+        <div class="cl-body">Сделал задание → посмотрел мультик. Ещё одно задание → ещё один мультик.</div>
+      </div>
+      <div class="card-light">
+        <div class="cl-title">Для старших</div>
+        <div class="cl-body">Сделал задание → 20 минут в телефоне или любимая игра.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="pg">3</div>
+</div>
+
+
+<!-- ████ PAGE 5 — ПРИВЫЧКА 9 + ВАЖНЫЙ МОМЕНТ ████ -->
+<div class="page page-inner">
+  <div class="p-header">
+    <div class="p-logo"><img src="assets/logo-circle.png" alt=""><span class="p-logo-name">MATRIUS</span></div>
+    <div class="p-age">5+</div>
+  </div>
+  <div class="p-div"></div>
+  <div class="p-body">
+
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">9</div>
+        <div class="hc-text">
+          <div class="hc-title">Челлендж</div>
+          <div class="hc-desc">Предложите ребёнку принять вызов: 2–3 недели выполнять все домашние задания самостоятельно и без напоминаний.</div>
+        </div>
+      </div>
+      <div class="hc-section">
+        <div class="hc-section-label">Как провести</div>
+        <div class="hc-section-val">Отмечайте вместе каждый день, хвалите ребёнка. При успешном участии — вместе отправляем диплом на почту!</div>
+      </div>
+    </div>
+
+    <div class="gap-s"></div>
+
+    <div class="tip">
+      <div class="tip-label">💡 Планер с наклейками</div>
+      <div class="tip-body">За каждое выполненное задание в плане наклеивайте стикер с любимым персонажем. <strong>Мотивация:</strong> собрать коллекцию из любимых героев!</div>
+    </div>
+
+    <div class="gap"></div>
+
+    <!-- Важный момент -->
+    <div class="page-title">Важный момент</div>
+    <span class="page-caveat">о последствиях без напоминаний</span>
+
+    <div class="intro-box" style="margin-bottom:12px;">
+      У ребёнка должно сложиться понимание, что <strong>невыполнение фиксированных действий</strong> — это не просто «забыл», а выбор, у которого есть последствия. Это воспитывает ответственность.
+    </div>
+
+    <div class="consequence">
+      <div class="cons-head">
+        <div class="cons-letter">А</div>
+        <div class="cons-title">Не выполнил домашнее задание по курсу</div>
+      </div>
+      <div class="cons-body">Если ребёнок самостоятельно не сделал задание по Ментальной Арифметике / Скорочтению / Программированию:</div>
+      <div class="cons-result"><strong>Последствие:</strong> целую неделю выносить мусор из квартиры 10 раз — отказываясь от напоминаний.</div>
+    </div>
+
+    <div class="consequence">
+      <div class="cons-head">
+        <div class="cons-letter">Б</div>
+        <div class="cons-title">Не убрал после себя или не помыл обувь</div>
+      </div>
+      <div class="cons-body">Тарелка осталась на столе или обувь не почищена — без напоминаний.</div>
+      <div class="cons-result"><strong>Последствие:</strong> мыть полы в квартире или 30 белых каждый день с утра до завтрака в течение недели.</div>
+    </div>
+
+  </div>
+  <div class="pg">4</div>
+</div>
+
+
+<!-- ████ PAGE 6 — СВОДКА + СОВЕТЫ ████ -->
+<div class="page page-inner">
+  <div class="p-header">
+    <div class="p-logo"><img src="assets/logo-circle.png" alt=""><span class="p-logo-name">MATRIUS</span></div>
+    <div class="p-age">5+</div>
+  </div>
+  <div class="p-div"></div>
+  <div class="p-body">
+
+    <div class="page-title">Как всё это внедрить</div>
+    <span class="page-caveat">пошаговый план на первую неделю</span>
+
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">1</div>
+        <div class="hc-text">
+          <div class="hc-title">Выберите 2–3 привычки для старта</div>
+          <div class="hc-desc">Не берите всё сразу. Начните с напоминания в телефоне + расписания на неделю — это даст структуру.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">2</div>
+        <div class="hc-text">
+          <div class="hc-title">Сделайте вместе с ребёнком</div>
+          <div class="hc-desc">Первый трекер, первое расписание, первый стикер — вместе. Потом ребёнок продолжает самостоятельно.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="habit-card">
+      <div class="hc-top">
+        <div class="hc-num">3</div>
+        <div class="hc-text">
+          <div class="hc-title">Договоритесь о последствиях заранее</div>
+          <div class="hc-desc">Ребёнок должен знать правила до начала — это честно и помогает избежать обид и конфликтов.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-s"></div>
+
+    <div class="g2">
+      <div class="card-light">
+        <div class="cl-title">✅ Первые результаты</div>
+        <div class="cl-body">Через 2–3 недели ребёнок начнёт выполнять задания более самостоятельно. Хвалите за каждый шаг!</div>
+      </div>
+      <div class="card-light">
+        <div class="cl-title">📲 Полезные приложения</div>
+        <div class="cl-body">Pomofocus · Forest · Habitica · Any.do · Google Календарь</div>
+      </div>
+    </div>
+
+    <div class="gap-s"></div>
+
+    <div class="tip">
+      <div class="tip-label">📌 Главный принцип</div>
+      <div class="tip-body">Цель — не контроль, а <strong>формирование самостоятельности</strong>. Чем меньше напоминаний от вас, тем лучше работают эти инструменты.</div>
+    </div>
+
+    <div class="gap"></div>
+
+    <div class="g3">
+      <div class="card-light" style="text-align:center;">
+        <div style="font-size:24px;margin-bottom:6px;">🔔</div>
+        <div class="cl-title">Напоминания</div>
+        <div class="cl-body" style="font-size:12px;">Привычки 1, 3, 4</div>
+      </div>
+      <div class="card-light" style="text-align:center;">
+        <div style="font-size:24px;margin-bottom:6px;">📋</div>
+        <div class="cl-title">Планирование</div>
+        <div class="cl-body" style="font-size:12px;">Привычки 2, 7, 9</div>
+      </div>
+      <div class="card-light" style="text-align:center;">
+        <div style="font-size:24px;margin-bottom:6px;">🏆</div>
+        <div class="cl-title">Мотивация</div>
+        <div class="cl-body" style="font-size:12px;">Привычки 5, 6, 8</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="pg">5</div>
+</div>
+
+
+<!-- ████ PAGE 7 — ЗАКЛЮЧЕНИЕ ████ -->
+<div class="page page-end">
+  <div class="end-grid">
+    <h2 class="end-title">
+      Попробуйте эти<br>
+      простые действия —<br>
+      и результат <span class="em">не заставит</span><br>
+      себя ждать!
+    </h2>
+    <div class="end-rule"></div>
+    <div class="end-caveat">Гениальным быть просто!</div>
+    <img src="assets/logo-circle.png" class="end-logo" alt="MATRIUS">
+  </div>
+</div>
+
+</body>
+</html>

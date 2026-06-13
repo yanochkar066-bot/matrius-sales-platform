@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Полезные привычки v2 — MATRIUS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Onest', sans-serif;
+  background: #B0B8C4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 32px;
+}
+
+/* ── A4 ── */
+.page {
+  width: 794px;
+  height: 1123px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════
+   ОБЛОЖКА
+═══════════════════════════ */
+.page-cover {
+  background-color: #1C3152;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 30px 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Логотип — левый верхний угол */
+.cover-logo {
+  position: absolute;
+  top: 44px; left: 48px;
+  z-index: 10;
+}
+.cover-logo img {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Метка 5+ — правый верхний угол */
+.cover-badge {
+  position: absolute;
+  top: 44px; right: 48px;
+  font-weight: 700;
+  font-size: 32px;
+  color: #EE6435;
+  line-height: 1;
+  z-index: 10;
+}
+
+/* Центральный текстовый блок */
+.cover-text {
+  position: absolute;
+  top: 148px;
+  left: 0; right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0 52px;
+  z-index: 5;
+}
+
+.cover-h1 {
+  font-family: 'Onest', sans-serif;
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+.cover-h1 .l1 {
+  display: block;
+  font-size: 104px;
+  color: #fff;
+}
+.cover-h1 .l2 {
+  display: block;
+  font-size: 104px;
+  color: #EE6435;
+}
+
+.cover-rule {
+  width: 64px;
+  height: 3px;
+  background: #EE6435;
+  border-radius: 2px;
+  margin: 24px 0 18px;
+}
+
+.cover-sub {
+  font-family: 'Caveat', cursive;
+  font-size: 26px;
+  font-style: italic;
+  color: rgba(255,255,255,0.58);
+  line-height: 1.35;
+  max-width: 380px;
+}
+
+/* Фото мальчика */
+.cover-photo {
+  position: absolute;
+  bottom: 48px;
+  right: 0;
+  width: 460px;
+  height: 580px;
+  object-fit: contain;
+  object-position: bottom center;
+  mix-blend-mode: screen;
+  z-index: 4;
+}
+
+/* Декоративный оранжевый прямоугольник под фото */
+.cover-deco-rect {
+  position: absolute;
+  bottom: 0;
+  right: 48px;
+  width: 320px;
+  height: 6px;
+  background: #EE6435;
+  border-radius: 3px 3px 0 0;
+  z-index: 3;
+}
+
+/* Нижняя полоса */
+.cover-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 52px;
+  background: rgba(238,100,53,0.10);
+  border-top: 1px solid rgba(238,100,53,0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  z-index: 10;
+}
+.cf-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.38);
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+.cf-dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(238,100,53,0.45);
+}
+
+/* ═══════════════════════════
+   ВНУТРЕННЯЯ СТРАНИЦА
+═══════════════════════════ */
+.page-inner {
+  background: #F7F8FA;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Хедер */
+.p-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 44px 12px;
+  background: #fff;
+}
+.p-logo { display: flex; align-items: center; gap: 10px; }
+.p-logo img { width: 36px; height: 36px; object-fit: contain; }
+.p-logo-name {
+  font-weight: 700; font-size: 12px;
+  color: #1C3152; letter-spacing: 2.8px;
+}
+.p-age { font-weight: 700; font-size: 24px; color: #EE6435; line-height: 1; }
+
+.p-div { height: 1px; background: #E2E6EE; margin: 0 44px; }
+
+/* Контент */
+.p-body {
+  flex: 1;
+  padding: 20px 44px 32px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Вводный блок */
+.intro-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1.5px solid #E2E6EE;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+}
+.intro-card p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #4A5568;
+}
+.intro-card strong { color: #1A2B42; font-weight: 700; }
+
+/* Заголовок раздела */
+.sec-title {
+  font-weight: 700; font-size: 20px;
+  color: #1A2B42;
+  margin-bottom: 3px;
+}
+.sec-caveat {
+  font-family: 'Caveat', cursive;
+  font-size: 22px; color: #EE6435;
+  font-style: italic;
+  display: block;
+  margin-bottom: 12px;
+}
+
+/* ── Синяя карточка ── */
+.card-blue {
+  background: linear-gradient(135deg, #2D5187 0%, #3A6494 100%);
+  border-radius: 18px;
+  margin-bottom: 9px;
+  overflow: hidden;
+  position: relative;
+}
+.card-blue::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: rgba(255,255,255,0.18);
+}
+
+.card-top {
+  padding: 15px 18px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+.card-num {
+  width: 30px; height: 30px; min-width: 30px;
+  background: #EE6435;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; color: #fff;
+  flex-shrink: 0; margin-top: 1px;
+}
+.card-meta { flex: 1; }
+.card-title {
+  font-weight: 700; font-size: 14.5px;
+  color: #fff; line-height: 1.3;
+  margin-bottom: 4px;
+}
+.card-body {
+  font-size: 12.5px; line-height: 1.62;
+  color: rgba(255,255,255,0.80);
+}
+
+/* Секция-пример внутри карточки */
+.card-section {
+  border-top: 1px solid rgba(255,255,255,0.10);
+  padding: 9px 18px 13px 61px;
+}
+.cs-label {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.42);
+  font-weight: 500; margin-bottom: 3px;
+}
+.cs-val {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.84);
+  line-height: 1.5;
+}
+
+/* Tip */
+.card-tip {
+  background: #FFF5F1;
+  border-left: 3px solid #EE6435;
+  border-radius: 0 12px 12px 0;
+  padding: 11px 15px;
+  margin-bottom: 9px;
+}
+.tip-label {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 1.5px; color: #EE6435;
+  font-weight: 700; margin-bottom: 3px;
+}
+.tip-body {
+  font-size: 12.5px; line-height: 1.6;
+  color: #4A5568;
+}
+
+/* Номер страницы */
+.pg {
+  position: absolute;
+  bottom: 20px; right: 40px;
+  font-size: 11px; color: #B0BDCC; font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<!-- ████████ СТРАНИЦА 1 — ОБЛОЖКА ████████ -->
+<div class="page page-cover">
+
+  <div class="cover-logo">
+    <img src="assets/logo-circle.png" alt="MATRIUS">
+  </div>
+
+  <div class="cover-badge">5+</div>
+
+  <div class="cover-text">
+    <h1 class="cover-h1">
+      <span class="l1">Полезные</span>
+      <span class="l2">привычки</span>
+    </h1>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">9 способов помочь ребёнку<br>организовать день самостоятельно</p>
+  </div>
+
+  <img class="cover-photo" src="assets/p01_img01_1280x853.jpeg" alt="">
+
+  <div class="cover-footer">
+    <span class="cf-text">Matrius</span>
+    <div class="cf-dot"></div>
+    <span class="cf-text">matrius.online</span>
+    <div class="cf-dot"></div>
+    <span class="cf-text">Материалы для родителей</span>
+  </div>
+
+</div>
+
+
+<!-- ████████ СТРАНИЦА 2 — ВВЕДЕНИЕ + ПРИВЫЧКИ 1–3 ████████ -->
+<div class="page page-inner">
+
+  <div class="p-header">
+    <div class="p-logo">
+      <img src="assets/logo-circle.png" alt="">
+      <span class="p-logo-name">MATRIUS</span>
+    </div>
+    <div class="p-age">5+</div>
+  </div>
+  <div class="p-div"></div>
+
+  <div class="p-body">
+
+    <!-- Вводный блок -->
+    <div class="intro-card">
+      <p><strong>Уважаемые родители!</strong> Предлагаем варианты, как помочь ребёнку в организации дня — чтобы и успеть погулять, и поиграть, и выполнить домашние задания <strong>без постоянных напоминаний.</strong></p>
+    </div>
+
+    <div class="sec-title">Начинаем формировать привычки</div>
+    <span class="sec-caveat">простые шаги, которые работают</span>
+
+    <!-- Привычка 1 -->
+    <div class="card-blue">
+      <div class="card-top">
+        <div class="card-num">1</div>
+        <div class="card-meta">
+          <div class="card-title">Поставить напоминания</div>
+          <div class="card-body">Настройте уведомление в телефоне родителя и ребёнка на конкретное время — с чётким названием задания.</div>
+        </div>
+      </div>
+      <div class="card-section">
+        <div class="cs-label">Пример</div>
+        <div class="cs-val">«Домашнее задание по ментальной арифметике / скорочтению / программированию» — ежедневно в 16:00.</div>
+      </div>
+    </div>
+
+    <!-- Привычка 2 -->
+    <div class="card-blue">
+      <div class="card-top">
+        <div class="card-num">2</div>
+        <div class="card-meta">
+          <div class="card-title">Расписание на неделю</div>
+          <div class="card-body">Ребёнок сам пишет расписание на листе А4 — занятия в школе, кружки, домашние дела — и вписывает конкретное время для ДЗ.</div>
+        </div>
+      </div>
+      <div class="card-section">
+        <div class="cs-label">Почему это работает</div>
+        <div class="cs-val">Когда ребёнок сам прописывает расписание, он берёт за него ответственность — а не выполняет чужой приказ.</div>
+      </div>
+    </div>
+
+    <!-- Привычка 3 -->
+    <div class="card-blue">
+      <div class="card-top">
+        <div class="card-num">3</div>
+        <div class="card-meta">
+          <div class="card-title">Стикеры-напоминалки</div>
+          <div class="card-body">На красивых стикерах — напоминания про задания и домашние дела. Клеятся на рабочий стол или зеркало в комнате.</div>
+        </div>
+      </div>
+      <div class="card-section">
+        <div class="cs-label">Эффект</div>
+        <div class="cs-val">Визуальное напоминание работает без участия родителей — ребёнок сам видит и вспоминает.</div>
+      </div>
+    </div>
+
+    <!-- Tip -->
+    <div class="card-tip">
+      <div class="tip-label">Важно</div>
+      <div class="tip-body">Внедряйте не всё сразу — выберите <strong>1–2 привычки</strong> для старта и отработайте их до автоматизма. Потом добавляйте следующие.</div>
+    </div>
+
+  </div>
+
+  <div class="pg">1</div>
+</div>
+
+</body>
+</html>
